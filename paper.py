@@ -8,7 +8,7 @@ class Paper():
     def fold(self, orientation = "north"):
         match orientation:
             case "north":
-                self.height = self.height / 2
+                self.height = self.height // 2
                 self.planes = self.planes * 2
                 self.fold_history.append("north")
             case "south":
@@ -16,10 +16,16 @@ class Paper():
                 self.planes = self.planes * 2
                 self.fold_history.append("south")
             case "east":
-                self.width = self.width / 2
+                self.width = self.width // 2
                 self.planes = self.planes * 2
                 self.fold_history.append("east")
             case "west":
-                self.width = self.width / 2
+                self.width = self.width // 2
                 self.planes = self.planes * 2
                 self.fold_history.append("west")
+
+    def visualize(self):
+        for _ in range(self.height):
+            for _ in range(self.width):
+                print("*", end="")
+            print()
