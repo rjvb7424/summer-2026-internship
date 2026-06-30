@@ -47,3 +47,11 @@ class Paper():
         # While ensuring that each row is printed on a new line
         for row in self.face:
             print(" ".join(str(cell) for cell in row))
+
+    def punch(self, x, y):
+        # Punch a hole in the paper at the specified coordinates (x, y)
+        # If the coordinates are out of bounds, print an error message
+        if 0 <= x < self.current_width and 0 <= y < self.current_height:
+            self.face[y][x] = 1
+        else:
+            print("Coordinates out of bounds.")
