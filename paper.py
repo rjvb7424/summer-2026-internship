@@ -55,3 +55,27 @@ class Paper():
             self.face[y][x] = 1
         else:
             print("Coordinates out of bounds.")
+
+    def unfold(self):
+        while self.layer != 1:
+            last_fold = self.fold_history.pop()
+            if last_fold == "north":
+                # Current face was the north half; mirror it downward for the south half
+                new_face = self.face + self.face[::-1]
+            elif last_fold == "south":
+                # Current face was the south half; mirror it upward for the north half
+                new_face = self.face[::-1] + self.face
+            elif last_fold == "west":
+                # Current face was the west half; mirror it rightward for the east half
+                new_face = [row + row[::-1] for row in self.face]
+            elif last_fold == "east":
+                # Current face was the east half; mirror it leftward for the west half
+                new_face = [row[::-1] + row for row in self.face]
+            # Update the current dimensions and layer count based on the last fold
+            if last_fold in ("north", "south"):
+                self.current_height *= 2
+            else:
+                self.current_width *= 2
+            self.face = new_face
+            self.layer //= 2
+        return
