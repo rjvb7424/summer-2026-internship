@@ -1,4 +1,5 @@
 import random
+import copy
 
 class Paper():
     def __init__(self, current_width = 10, current_height = 10, layer = 1):
@@ -92,7 +93,7 @@ class CognitiveTest():
     def generate_choices(self, test_paper=None):
         # Populate the choices dictionary with the current state of the paper after folding
         for key in self.choices.keys():
-            self.choices[key] = test_paper
+            self.choices[key] = copy.deepcopy(test_paper)
         # Punch a hole at a random position on the choices paper
         for key, paper in self.choices.items():
             x = random.randint(0, self.test_paper.current_width - 1)
@@ -121,9 +122,10 @@ class CognitiveTest():
         y = random.randint(0, self.test_paper.current_height - 1)
         print(f"Punching a hole at position ({x}, {y}) through all {self.test_paper.layer} layer(s):")
         self.test_paper.punch(x, y)
-        # Generate the correct answer choice
-        correct_choice = self.generate_answer(test_paper=self.test_paper)
         self.test_paper.visualize()
+        # Generate the correct answer choice
+        self.test_paper.unfold()
+        correct_choice = self.generate_answer(test_paper=self.test_paper)
         print("Which of these choices (A, B, C, D, E) represents the correct unfolded state of the paper?")
         for key, paper in self.choices.items():
             print(f"Choice {key}:")
