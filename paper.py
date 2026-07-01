@@ -148,7 +148,7 @@ class CognitiveTest():
         lines = [
             f"A square paper with dimensions {self.test_paper.current_width}x{self.test_paper.current_height}" 
             "is folded several times, a hole is punched through all layers, then it is unfolded.",
-            f"Fold sequence: {' -> '.join(self.test_paper.fold_history_log)}",
+            f"Fold sequence: {' -> '.join(self.test_paper.fold_history)}",
             "\nBelow are five candidates for the possible unfolded state (A-E). 1 = hole, 0 = no hole.",
         ]
         for key, choice_paper in self.choices.items():

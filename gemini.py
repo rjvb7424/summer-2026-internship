@@ -21,6 +21,9 @@ def call_gemini(prompt, model="gemini-2.5-flash", max_retries=3):
             response = client.models.generate_content(
                 model=model,
                 contents=prompt,
+                config=types.GenerateContentConfig(
+                    thinking_config=types.ThinkingConfig(thinking_budget=1024)
+                ),
             )
             elapsed = time.time() - start
             print(f"[Attempt {attempt}] Got response after {elapsed:.1f}s")
