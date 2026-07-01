@@ -1,5 +1,6 @@
 import random
 import copy
+import re
 
 class Paper():
     def __init__(self, current_width = 10, current_height = 10, layer = 1):
@@ -19,6 +20,10 @@ class Paper():
     def generate_face(self):
         """Generate a 2D grid representing the current face of the paper based on its current dimensions."""
         return [[0 for _ in range(self.current_width)] for _ in range(self.current_height)]
+    
+    def face_to_string(self):
+        """Convert the current face of the paper to a string representation."""
+        return "\n".join(" ".join(str(c) for c in row) for row in self.face)
 
     def fold(self, orientation = "north"):
         """Fold the paper in the specified orientation.
@@ -137,3 +142,75 @@ class CognitiveTest():
         while input("Enter your choice (A, B, C, D, E): ").upper() != correct_choice:
             print("Incorrect!")
         print(f"Correct!")
+
+    def build_prompt(self):
+        """Build a prompt for the cognitive test, which will be sent to the AI models for evaluation."""
+        lines = [
+            f"A square paper with dimensions {self.test_paper.current_width}x{self.test_paper.current_height}" 
+            "is folded several times, a hole is punched through all layers, then it is unfolded.",
+            f"Fold sequence: {' -> '.join(self.test_paper.fold_history_log)}",
+            "\nBelow are five candidates for the possible unfolded state (A-E). 1 = hole, 0 = no hole.",
+        ]
+        for key, choice_paper in self.choices.items():
+            lines.append(f"\nChoice {key}:")
+            lines.append(choice_paper.face_to_string())
+        lines.append("\nWhich choice (A, B, C, D, or E) is correct? Respond with only the single letter.")
+        return "\n".join(lines)
+
+    def extract_choice(self, response_text):
+        """Extract the choice (A-E) from the response text, if present."""
+        """ This is done because the model might return additional text"""
+        match = re.search(r"\b([A-E])\b", response_text.strip().upper())
+        return match.group(1) if match else None
+
+    def run_automated(self, num_folds=3, solver=None):
+        """Run the cognitive test in an automated manner, 
+        optionally using a solver function to evaluate the prompt and return a predicted choice."""
+        # Fold the paper n times in a random orientation and record the orientations
+        fold_orientations = []
+        for _ in range(num_folds):
+            orientation = random.choice(["north", "south", "east", "west"])
+            self.test_paper.fold(orientation)
+            fold_orientations.append(orientation)
+        # After folding the test paper, generate the choices for the cognitive test
+        self.generate_choices(test_paper=self.test_paper)
+        # Punch a hole at a random position on the folded paper
+        x = random.randint(0, self.test_paper.current_width - 1)
+        y = random.randint(0, self.test_paper.current_height - 1)
+        self.test_paper.punch(x, y)
+        # Unfold the test paper to determine the correct choice
+        self.test_paper.unfold()
+        correct_choice = self.generate_answer(test_paper=self.test_paper)
+        # Unfold the distractor choices so all five are comparable
+        for choice_paper in self.choices.values():
+            if choice_paper.layer != 1:
+                choice_paper.unfold()
+        # Build the prompt for the cognitive test, which will be sent to the AI models for evaluation
+        prompt = self.build_prompt()
+        solver_result = solver(prompt) if solver else None
+        # Compile the results of the cognitive test
+        result = {
+            "num_folds": num_folds,
+            "fold_history": fold_orientations,
+            "punch_position": (x, y),
+            "correct_choice": correct_choice,
+            "prompt": prompt,
+        }
+        # If a solver was provided and returned a result, extract the predicted choice and other relevant information
+        if solver_result:
+            predicted = self.extract_choice(solver_result["text"])
+            result.update({
+                "raw_response": solver_result["text"],
+                "predicted_choice": predicted,
+                "is_correct": predicted == correct_choice,
+                "elapsed_seconds": solver_result["elapsed_seconds"],
+                "prompt_tokens": solver_result["prompt_tokens"],
+                "output_tokens": solver_result["output_tokens"],
+                "thinking_tokens": solver_result["thinking_tokens"],
+                "total_tokens": solver_result["total_tokens"],
+                "model_version": solver_result["model_version"],
+            })
+        else:
+            result.update({"raw_response": None, "predicted_choice": None, "is_correct": None})
+        # Return the compiled results of the cognitive test
+        return result
