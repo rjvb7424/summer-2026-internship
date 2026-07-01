@@ -5,7 +5,7 @@ import cognitive_test
 import gemini
 
 # Constants
-NUM_TRIALS = 3
+NUM_TRIALS = 12
 RESULTS_FILE = "results.json"
 # AI models to use for the cognitive test
 GEMINI_MODEL = "gemini-3.1-flash-lite"
