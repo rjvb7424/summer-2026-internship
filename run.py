@@ -7,6 +7,8 @@ import gemini
 # Constants
 NUM_TRIALS = 3
 RESULTS_FILE = "results.json"
+# AI models to use for the cognitive test
+GEMINI_MODEL = "gemini-3.1-flash-lite"
 
 def load_existing_results():
     """Load existing results from the JSON file if it exists, otherwise return an empty list."""
@@ -22,7 +24,7 @@ def save_results(results):
 
 def gemini_solver(prompt):
     """Call the Gemini API with the given prompt and return the result."""
-    return gemini.call_gemini(prompt)
+    return gemini.call_gemini(prompt, model=GEMINI_MODEL)
 
 # load existing results to avoid overwriting previous trials
 results = load_existing_results()
