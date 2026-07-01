@@ -82,7 +82,24 @@ class Paper():
             self.layer //= 2
         return
     
-    def test(self, num_folds=3):
+class CognitiveTest():
+    def __init__(self):
+        # Test paper for the cognitive test
+        self.test_paper = Paper()
+        # Possible choices to pick from
+        self.choices = {"A": None, "B": None, "C": None, "D": None}
+
+    def generate_choices(self):
+        # Populate the choices dictionary with the current state of the paper after folding
+        for key in self.choices.keys():
+            self.choices[key] = [row[:] for row in self.test_paper.face]
+        # Punch a hole at a random position on the choices paper
+        for key, face in self.choices.items():
+            x = random.randint(0, self.current_width - 1)
+            y = random.randint(0, self.current_height - 1)
+            face[y][x] = 1
+
+    def run(self, num_folds=3):
         print("Initial paper (unfolded):")
         self.visualize()
         # Fold the paper n times in a random oritentation
@@ -91,6 +108,8 @@ class Paper():
             self.fold(orientation)
             print(f"Step {i+1}: Folded {orientation}. Current state of the paper:")
             self.visualize()
+        # After folding the test paper, generate the choices for the cognitive test
+        self.generate_choices()
         # Punch a hole at a random position on the folded paper
         x = random.randint(0, self.current_width - 1)
         y = random.randint(0, self.current_height - 1)

@@ -1,7 +1,4 @@
 import paper
 
-test = paper.Paper()
-
-test.test(3)
-test.unfold()
-test.visualize()
+test = paper.CognitiveTest()
+test.run(3)
