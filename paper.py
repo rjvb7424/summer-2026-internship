@@ -17,12 +17,12 @@ class Paper():
         self.layer = layer
 
     def generate_face(self):
-        # generate_face was made into a function so that it can be called after each fold to update
+        """Generate a 2D grid representing the current face of the paper based on its current dimensions."""
         return [[0 for _ in range(self.current_width)] for _ in range(self.current_height)]
 
     def fold(self, orientation = "north"):
-        # Fold the paper in the specified orientation
-        # Update the current dimensions, layer count,fold history and face accordingly
+        """Fold the paper in the specified orientation.
+        Update the current dimensions, layer count, fold history and face accordingly."""
         match orientation:
             case "north":
                 self.current_height = self.current_height // 2
@@ -46,20 +46,21 @@ class Paper():
                 self.face = self.generate_face()
 
     def visualize(self):
-        # Print the current state of the paper's face
+        """Print the current state of the paper's face."""
         # While ensuring that each row is printed on a new line
         for row in self.face:
             print(" ".join(str(cell) for cell in row))
 
     def punch(self, x, y):
-        # Punch a hole in the paper at the specified coordinates (x, y)
-        # If the coordinates are out of bounds, print an error message
+        """Punch a hole in the paper at the specified coordinates (x, y).
+        If the coordinates are out of bounds, print an error message"""
         if 0 <= x < self.current_width and 0 <= y < self.current_height:
             self.face[y][x] = 1
         else:
             print("Coordinates out of bounds.")
 
     def unfold(self):
+        """Unfold the paper back to its original state."""
         while self.layer != 1:
             last_fold = self.fold_history.pop()
             if last_fold == "north":
@@ -91,7 +92,7 @@ class CognitiveTest():
         self.choices = {"A": None, "B": None, "C": None, "D": None, "E": None}
 
     def generate_choices(self, test_paper=None):
-        # Populate the choices dictionary with the current state of the paper after folding
+        """Populate the choices dictionary with the current state of the paper after folding"""
         for key in self.choices.keys():
             self.choices[key] = copy.deepcopy(test_paper)
         # Punch a hole at a random position on the choices paper
@@ -101,12 +102,14 @@ class CognitiveTest():
             paper.face[y][x] = 1
     
     def generate_answer(self, test_paper=None):
-        # Overwrite a random choice with the correct unfolded state of the paper
+        """Overwrite a random choice with the correct unfolded state of the paper and return the key of that choice"""
         correct_choice = random.choice(list(self.choices.keys()))
         self.choices[correct_choice] = test_paper
         return correct_choice
 
     def run(self, num_folds=3):
+        """Run the cognitive test by folding the paper, punching a hole, 
+        and asking to identify the correct unfolded state."""
         print("Initial paper (unfolded):")
         self.test_paper.visualize()
         # Fold the paper n times in a random oritentation
