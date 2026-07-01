@@ -4,7 +4,7 @@ import re
 
 class Paper:
     """Class representing a piece of paper that can be folded and punched."""
-    def __init__(self, current_width=10, current_height=10, layer=1):
+    def __init__(self, current_width=16, current_height=16, layer=1):
         # Store the original dimensions of the paper
         self.ORIGINAL_WIDTH = current_width
         self.ORIGINAL_HEIGHT = current_height
@@ -75,7 +75,7 @@ class Paper:
 
 class CognitiveTest:
     """Class representing a cognitive test involving folding and punching paper."""
-    def __init__(self, width=10, height=10):
+    def __init__(self, width=16, height=16):
         # Initialize the test with a Paper instance
         self.test_paper = Paper(width, height)
         self.choices = {"A": None, "B": None, "C": None, "D": None, "E": None}
