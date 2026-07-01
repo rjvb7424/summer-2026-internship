@@ -1,3 +1,5 @@
+import random
+
 class Paper():
     def __init__(self, current_width = 10, current_height = 10, layer = 1):
         # Original dimensions of the paper
@@ -79,3 +81,19 @@ class Paper():
             self.face = new_face
             self.layer //= 2
         return
+    
+    def test(self, num_folds=3):
+        print("Initial paper (unfolded):")
+        self.visualize()
+        # Fold the paper n times in a random oritentation
+        for i in range(num_folds):
+            orientation = random.choice(["north", "south", "east", "west"])
+            self.fold(orientation)
+            print(f"Step {i+1}: Folded {orientation}. Current state of the paper:")
+            self.visualize()
+        # Punch a hole at a random position on the folded paper
+        x = random.randint(0, self.current_width - 1)
+        y = random.randint(0, self.current_height - 1)
+        print(f"Punching a hole at position ({x}, {y}) through all {self.layer} layer(s):")
+        self.punch(x, y)
+        self.visualize()
