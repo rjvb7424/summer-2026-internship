@@ -87,32 +87,48 @@ class CognitiveTest():
         # Test paper for the cognitive test
         self.test_paper = Paper()
         # Possible choices to pick from
-        self.choices = {"A": None, "B": None, "C": None, "D": None}
+        self.choices = {"A": None, "B": None, "C": None, "D": None, "E": None}
 
-    def generate_choices(self):
+    def generate_choices(self, test_paper=None):
         # Populate the choices dictionary with the current state of the paper after folding
         for key in self.choices.keys():
-            self.choices[key] = [row[:] for row in self.test_paper.face]
+            self.choices[key] = test_paper
         # Punch a hole at a random position on the choices paper
-        for key, face in self.choices.items():
-            x = random.randint(0, self.current_width - 1)
-            y = random.randint(0, self.current_height - 1)
-            face[y][x] = 1
+        for key, paper in self.choices.items():
+            x = random.randint(0, self.test_paper.current_width - 1)
+            y = random.randint(0, self.test_paper.current_height - 1)
+            paper.face[y][x] = 1
+    
+    def generate_answer(self, test_paper=None):
+        # Overwrite a random choice with the correct unfolded state of the paper
+        correct_choice = random.choice(list(self.choices.keys()))
+        self.choices[correct_choice] = test_paper
+        return correct_choice
 
     def run(self, num_folds=3):
         print("Initial paper (unfolded):")
-        self.visualize()
+        self.test_paper.visualize()
         # Fold the paper n times in a random oritentation
         for i in range(num_folds):
             orientation = random.choice(["north", "south", "east", "west"])
-            self.fold(orientation)
+            self.test_paper.fold(orientation)
             print(f"Step {i+1}: Folded {orientation}. Current state of the paper:")
-            self.visualize()
+            self.test_paper.visualize()
         # After folding the test paper, generate the choices for the cognitive test
-        self.generate_choices()
+        self.generate_choices(test_paper=self.test_paper)
         # Punch a hole at a random position on the folded paper
-        x = random.randint(0, self.current_width - 1)
-        y = random.randint(0, self.current_height - 1)
-        print(f"Punching a hole at position ({x}, {y}) through all {self.layer} layer(s):")
-        self.punch(x, y)
-        self.visualize()
+        x = random.randint(0, self.test_paper.current_width - 1)
+        y = random.randint(0, self.test_paper.current_height - 1)
+        print(f"Punching a hole at position ({x}, {y}) through all {self.test_paper.layer} layer(s):")
+        self.test_paper.punch(x, y)
+        # Generate the correct answer choice
+        correct_choice = self.generate_answer(test_paper=self.test_paper)
+        self.test_paper.visualize()
+        print("Which of these choices (A, B, C, D, E) represents the correct unfolded state of the paper?")
+        for key, paper in self.choices.items():
+            print(f"Choice {key}:")
+            paper.unfold()
+            paper.visualize()
+        while input("Enter your choice (A, B, C, D, E): ").upper() != correct_choice:
+            print("Incorrect!")
+        print(f"Correct!")

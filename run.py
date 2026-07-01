@@ -1,4 +1,4 @@
 import paper
 
 test = paper.CognitiveTest()
-test.run(3)
+test.run(num_folds=3)
