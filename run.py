@@ -1,9 +1,9 @@
 import json
 import os
-import paper
+import cognitive_test
 import gemini
 
-NUM_TRIALS = 20
+NUM_TRIALS = 1
 RESULTS_FILE = "results.json"
 
 def load_existing_results():
@@ -24,12 +24,12 @@ start_trial = len(results)
 
 for i in range(start_trial, NUM_TRIALS):
     print(f"\n=== Trial {i+1}/{NUM_TRIALS} ===")
-    test = paper.CognitiveTest()
-    result = test.run_automated(num_folds=3, solver=gemini_solver)
+    test = cognitive_test.CognitiveTest()
+    result = test.run(num_folds=3, solver=gemini_solver)
     result["trial"] = i + 1
     results.append(result)
 
-    save_results(results)  # write after every trial, not just at the end
+    save_results(results)
 
     print(f"Correct: {result['correct_choice']} | Gemini: {result['predicted_choice']} | Match: {result['is_correct']}")
 

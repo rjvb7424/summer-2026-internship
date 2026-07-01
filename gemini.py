@@ -11,7 +11,7 @@ client = genai.Client(
     http_options=types.HttpOptions(timeout=60000)
 )
 
-def call_gemini(prompt, model="gemini-2.5-flash", max_retries=3):
+def call_gemini(prompt, model="gemini-3.5-flash", max_retries=3):
     """Call the Gemini API with the given prompt and model, handling retries for transient errors."""
     for attempt in range(1, max_retries + 1):
         try:
