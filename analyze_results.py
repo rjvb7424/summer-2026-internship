@@ -1,69 +1,72 @@
-"""
-analyze_results.py
-
-Reads results.json (produced by run.py) and regenerates a set of graphs
-in the plots/ folder. Safe to re-run any time you add more trials --
-it always reflects whatever is currently in results.json.
-
-Usage:
-    python analyze_results.py
-    python analyze_results.py --results results.json --outdir plots
-"""
-
 import argparse
 import json
 import os
+import re
 from collections import Counter
-
 import matplotlib.pyplot as plt
+import numpy as np
 
+# The letters used for the candidates in the spatial visualisation test.
 LETTERS = ["A", "B", "C", "D", "E"]
 
-# Fixed color order so each model keeps the same color across runs/graphs,
-# regardless of the order models happen to appear in results.json.
-MODEL_COLORS = ["#2a78d6", "#1baf7a", "#eda100", "#e34948", "#4a3aa7", "#e87ba4", "#eb6834"]
+# Each AI provider gets their own color family (a matplotlib colormap). 
+# Models from the same provider are shaded from light to dark within that family.
+PROVIDER_COLORMAPS = {
+    "gemini": plt.get_cmap("Blues"),
+    "gpt": plt.get_cmap("Reds"),
+}
+# Fallback colormaps for providers not in PROVIDER_COLORMAPS.
+FALLBACK_COLORMAPS = [plt.get_cmap("Greens"), plt.get_cmap("Purples"), plt.get_cmap("Oranges"), plt.get_cmap("Greys")]
+# The range of shades to use for models within a provider's colormap
+SHADE_RANGE = (0.35, 0.85)
 
+def _detect_provider(model_name):
+    """Best-effort guess at which company a model belongs to, from its name."""
+    name = model_name.lower()
+    if name.startswith("gemini"):
+        return "gemini"
+    if name.startswith("gpt") or re.match(r"^o\d", name):
+        return "gpt"
+    return "other"
 
 def model_color_map(results):
+    """Maps each model name to a color, grouped by provider color family"""
     models = sorted({r.get("model_version", "unknown") for r in results})
-    return {m: MODEL_COLORS[i % len(MODEL_COLORS)] for i, m in enumerate(models)}
+    
+    # Group models by provider, so we can shade them within their provider's colormap.
+    by_provider = {}
+    for m in models:
+        by_provider.setdefault(_detect_provider(m), []).append(m)
 
+    color_map = {}
+    fallback_idx = 0
+    # Sort provider keys so fallback-family assignment is stable across runs.
+    for provider in sorted(by_provider.keys()):
+        provider_models = sorted(by_provider[provider])
+        n = len(provider_models)
+
+        if provider in PROVIDER_COLORMAPS:
+            cmap = PROVIDER_COLORMAPS[provider]
+        else:
+            cmap = FALLBACK_COLORMAPS[fallback_idx % len(FALLBACK_COLORMAPS)]
+            fallback_idx += 1
+
+        shades = [SHADE_RANGE[1]] if n == 1 else np.linspace(SHADE_RANGE[0], SHADE_RANGE[1], n)
+        for model, shade in zip(provider_models, shades):
+            color_map[model] = cmap(shade)
+
+    return color_map
 
 def load_results(path):
+    """Load results from a JSON file, raising an error if the file doesn't exist."""
     if not os.path.exists(path):
         raise FileNotFoundError(f"Could not find {path}. Run run.py first.")
     with open(path, "r") as f:
         return json.load(f)
 
-
 def filter_scored(results):
     """Only keep trials that actually got a solver response."""
     return [r for r in results if r.get("predicted_choice") is not None]
-
-
-def plot_rolling_accuracy(results, outdir):
-    """Accuracy so far, trial by trial. Shows whether performance is
-    trending up, down, or flat as you collect more data."""
-    correct_flags = [1 if r["is_correct"] else 0 for r in results]
-    running_acc = []
-    total_correct = 0
-    for i, c in enumerate(correct_flags, start=1):
-        total_correct += c
-        running_acc.append(100 * total_correct / i)
-
-    fig, ax = plt.subplots(figsize=(8, 4))
-    ax.plot(range(1, len(running_acc) + 1), running_acc, marker="o", markersize=3, linewidth=1.5, color="#2a78d6")
-    ax.axhline(20, linestyle="--", linewidth=1, color="#898781", label="Chance (20%, 5 choices)")
-    ax.set_xlabel("Trial")
-    ax.set_ylabel("Cumulative accuracy (%)")
-    ax.set_title("Rolling accuracy over trials")
-    ax.set_ylim(0, 100)
-    ax.legend(fontsize=9)
-    ax.grid(True, alpha=0.3)
-    fig.tight_layout()
-    fig.savefig(os.path.join(outdir, "rolling_accuracy.png"), dpi=150)
-    plt.close(fig)
-
 
 def plot_letter_distribution(results, outdir):
     """Predicted letter vs correct letter counts. A skew toward one
@@ -90,7 +93,6 @@ def plot_letter_distribution(results, outdir):
     fig.savefig(os.path.join(outdir, "letter_distribution.png"), dpi=150)
     plt.close(fig)
 
-
 def plot_tokens_per_trial(results, outdir):
     """Output tokens per trial. Consistently low token counts (e.g. 1)
     suggest the model is answering without any visible reasoning."""
@@ -109,7 +111,6 @@ def plot_tokens_per_trial(results, outdir):
     fig.savefig(os.path.join(outdir, "tokens_per_trial.png"), dpi=150)
     plt.close(fig)
 
-
 def plot_elapsed_time(results, outdir):
     """Response latency per trial. Useful for spotting when the model
     actually 'thinks' (slower) vs instant-guesses."""
@@ -126,7 +127,6 @@ def plot_elapsed_time(results, outdir):
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, "elapsed_time.png"), dpi=150)
     plt.close(fig)
-
 
 def plot_accuracy_by_num_folds(results, outdir):
     """Accuracy broken down by number of folds, in case difficulty
@@ -155,18 +155,15 @@ def plot_accuracy_by_num_folds(results, outdir):
     fig.savefig(os.path.join(outdir, "accuracy_by_num_folds.png"), dpi=150)
     plt.close(fig)
 
-
 def plot_accuracy_by_model(results, outdir):
-    """THE main comparison graph once you're testing multiple models:
-    a horizontal bar chart, sorted best-to-worst, so the ranking is
-    obvious at a glance regardless of how many models or how long
-    their names are."""
+    """Accuracy broken down by model, ranked best-to-worst.""" 
+    """Useful for comparing model performance."""
     by_model = {}
     for r in results:
         m = r.get("model_version", "unknown")
         by_model.setdefault(m, []).append(1 if r["is_correct"] else 0)
 
-    # Sort worst-to-best so that when matplotlib draws bars bottom-to-top,
+    # Sort the models by accuracy, so that the best model ends up at the top of the chart.
     # the best model ends up at the top of the chart.
     ranked = sorted(by_model.items(), key=lambda kv: sum(kv[1]) / len(kv[1]))
     models = [m for m, _ in ranked]
@@ -178,16 +175,15 @@ def plot_accuracy_by_model(results, outdir):
     bars = ax.barh(models, accuracies, color=colors)
     for bar, acc, n_samples in zip(bars, accuracies, sample_sizes):
         ax.text(bar.get_width() + 1.5, bar.get_y() + bar.get_height() / 2,
-                f"{acc:.0f}% (n={n_samples})", va="center", fontsize=9, color="#52514e")
+                f"{acc:.0f}%", va="center", fontsize=9, color="#52514e")
     ax.axvline(20, linestyle="--", linewidth=1, color="#898781", label="Chance (20%)")
     ax.set_xlabel("Accuracy (%)")
-    ax.set_title("Model accuracy, ranked")
+    ax.set_title("Model against accuracy")
     ax.set_xlim(0, 110)
     ax.legend(fontsize=9, loc="lower right")
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, "accuracy_by_model.png"), dpi=150)
     plt.close(fig)
-
 
 def plot_accuracy_vs_cost(results, outdir):
     """The efficiency view: accuracy vs how much the model spent to get
@@ -230,7 +226,6 @@ def plot_accuracy_vs_cost(results, outdir):
     fig.savefig(os.path.join(outdir, "accuracy_vs_cost.png"), dpi=150)
     plt.close(fig)
 
-
 def plot_rolling_accuracy_by_model(results, outdir):
     """Same rolling-accuracy view as plot_rolling_accuracy, but one line
     per model so you can see how they trend as trials accumulate."""
@@ -262,7 +257,6 @@ def plot_rolling_accuracy_by_model(results, outdir):
     fig.savefig(os.path.join(outdir, "rolling_accuracy_by_model.png"), dpi=150)
     plt.close(fig)
 
-
 def plot_elapsed_time_by_model(results, outdir):
     """Average response time per model, since slower/thinking models
     and fast/lite models are worth comparing directly."""
@@ -285,29 +279,6 @@ def plot_elapsed_time_by_model(results, outdir):
     fig.savefig(os.path.join(outdir, "elapsed_time_by_model.png"), dpi=150)
     plt.close(fig)
 
-
-def print_summary(results):
-    n = len(results)
-    correct = sum(1 for r in results if r["is_correct"])
-    reasoning_trials = sum(1 for r in results if (r.get("output_tokens") or 0) > 5)
-    print(f"Trials scored: {n}")
-    print(f"Accuracy: {correct}/{n} ({100 * correct / n:.1f}%)")
-    print(f"Trials with >5 output tokens (visible reasoning): {reasoning_trials}/{n}")
-    pred_counts = Counter(r["predicted_choice"] for r in results)
-    print("Predicted letter distribution:", dict(pred_counts))
-
-    by_model = {}
-    for r in results:
-        m = r.get("model_version", "unknown")
-        by_model.setdefault(m, []).append(r)
-    if len(by_model) > 1:
-        print("\nBy model:")
-        for m in sorted(by_model.keys()):
-            rs = by_model[m]
-            c = sum(1 for r in rs if r["is_correct"])
-            print(f"  {m}: {c}/{len(rs)} ({100 * c / len(rs):.1f}%)")
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--results", default="results.json", help="Path to results.json")
@@ -316,14 +287,14 @@ def main():
 
     os.makedirs(args.outdir, exist_ok=True)
 
+    # Load the results and filter to only scored trials (those with a predicted choice).
     raw_results = load_results(args.results)
     results = filter_scored(raw_results)
 
     if not results:
-        print("No scored trials found yet (predicted_choice is None for all). Nothing to plot.")
+        print("No scored trials found yet. Nothing to plot!")
         return
 
-    plot_rolling_accuracy(results, args.outdir)
     plot_letter_distribution(results, args.outdir)
     plot_tokens_per_trial(results, args.outdir)
     plot_elapsed_time(results, args.outdir)
@@ -333,9 +304,7 @@ def main():
     plot_rolling_accuracy_by_model(results, args.outdir)
     plot_elapsed_time_by_model(results, args.outdir)
 
-    print_summary(results)
     print(f"\nGraphs saved to {os.path.abspath(args.outdir)}/")
-
 
 if __name__ == "__main__":
     main()

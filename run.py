@@ -23,8 +23,11 @@ GEMINI_MODELS = [
     "gemini-2.5-flash",
 ]
 GPT_MODELS = [
-    "gpt-5.2",
-    "gpt-5.2-mini",
+    "o3-2025-04-16",
+    "gpt-5-nano-2025-08-07",
+    "chatgpt-4o-latest",
+    "gpt-5.5-2026-04-23",
+    "gpt-5.4-mini-2026-03-17",
 ]
 
 def load_existing_results():
