@@ -157,32 +157,77 @@ def plot_accuracy_by_num_folds(results, outdir):
 
 
 def plot_accuracy_by_model(results, outdir):
-    """Accuracy broken down by model, the main comparison once you're
-    testing more than one model on the same benchmark."""
+    """THE main comparison graph once you're testing multiple models:
+    a horizontal bar chart, sorted best-to-worst, so the ranking is
+    obvious at a glance regardless of how many models or how long
+    their names are."""
     by_model = {}
     for r in results:
         m = r.get("model_version", "unknown")
         by_model.setdefault(m, []).append(1 if r["is_correct"] else 0)
 
-    models = sorted(by_model.keys())
-    accuracies = [100 * sum(by_model[m]) / len(by_model[m]) for m in models]
-    sample_sizes = [len(by_model[m]) for m in models]
+    # Sort worst-to-best so that when matplotlib draws bars bottom-to-top,
+    # the best model ends up at the top of the chart.
+    ranked = sorted(by_model.items(), key=lambda kv: sum(kv[1]) / len(kv[1]))
+    models = [m for m, _ in ranked]
+    accuracies = [100 * sum(flags) / len(flags) for _, flags in ranked]
+    sample_sizes = [len(flags) for _, flags in ranked]
     colors = [model_color_map(results)[m] for m in models]
 
-    fig, ax = plt.subplots(figsize=(max(6, 1.5 * len(models)), 4))
-    bars = ax.bar(models, accuracies, color=colors)
-    for bar, n_samples in zip(bars, sample_sizes):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1,
-                f"n={n_samples}", ha="center", fontsize=9, color="#52514e")
-    ax.axhline(20, linestyle="--", linewidth=1, color="#898781", label="Chance (20%)")
-    ax.set_xlabel("Model")
-    ax.set_ylabel("Accuracy (%)")
-    ax.set_title("Accuracy by model")
-    ax.set_ylim(0, 100)
-    ax.tick_params(axis="x", labelrotation=15)
-    ax.legend(fontsize=9)
+    fig, ax = plt.subplots(figsize=(8, max(3, 0.6 * len(models))))
+    bars = ax.barh(models, accuracies, color=colors)
+    for bar, acc, n_samples in zip(bars, accuracies, sample_sizes):
+        ax.text(bar.get_width() + 1.5, bar.get_y() + bar.get_height() / 2,
+                f"{acc:.0f}% (n={n_samples})", va="center", fontsize=9, color="#52514e")
+    ax.axvline(20, linestyle="--", linewidth=1, color="#898781", label="Chance (20%)")
+    ax.set_xlabel("Accuracy (%)")
+    ax.set_title("Model accuracy, ranked")
+    ax.set_xlim(0, 110)
+    ax.legend(fontsize=9, loc="lower right")
     fig.tight_layout()
     fig.savefig(os.path.join(outdir, "accuracy_by_model.png"), dpi=150)
+    plt.close(fig)
+
+
+def plot_accuracy_vs_cost(results, outdir):
+    """The efficiency view: accuracy vs how much the model spent to get
+    there (tokens and time). One point per model, bubble size = number
+    of trials. Top-left = accurate AND cheap (good). Bottom-right =
+    expensive AND wrong (bad)."""
+    by_model = {}
+    for r in results:
+        m = r.get("model_version", "unknown")
+        by_model.setdefault(m, []).append(r)
+
+    models = sorted(by_model.keys())
+    colors = model_color_map(results)
+
+    fig, (ax_tokens, ax_time) = plt.subplots(1, 2, figsize=(13, 5.5))
+
+    for ax, field, xlabel in [
+        (ax_tokens, "total_tokens", "Avg total tokens per trial"),
+        (ax_time, "elapsed_seconds", "Avg response time (s) per trial"),
+    ]:
+        for m in models:
+            rs = by_model[m]
+            acc = 100 * sum(1 for r in rs if r["is_correct"]) / len(rs)
+            avg_cost = sum((r.get(field) or 0) for r in rs) / len(rs)
+            n = len(rs)
+            ax.scatter(avg_cost, acc, s=max(80, 25 * n), color=colors[m],
+                       alpha=0.8, edgecolors="white", linewidths=1, zorder=3)
+            ax.annotate(m, (avg_cost, acc), textcoords="offset points",
+                        xytext=(6, 6), fontsize=8, color="#52514e")
+        ax.axhline(20, linestyle="--", linewidth=1, color="#898781")
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel("Accuracy (%)")
+        ax.set_ylim(-5, 105)
+        ax.grid(True, alpha=0.3)
+
+    ax_tokens.set_title("Accuracy vs tokens spent")
+    ax_time.set_title("Accuracy vs time spent")
+    fig.suptitle("Efficiency: bubble size = number of trials", fontsize=10, color="#898781")
+    fig.tight_layout()
+    fig.savefig(os.path.join(outdir, "accuracy_vs_cost.png"), dpi=150)
     plt.close(fig)
 
 
@@ -284,6 +329,7 @@ def main():
     plot_elapsed_time(results, args.outdir)
     plot_accuracy_by_num_folds(results, args.outdir)
     plot_accuracy_by_model(results, args.outdir)
+    plot_accuracy_vs_cost(results, args.outdir)
     plot_rolling_accuracy_by_model(results, args.outdir)
     plot_elapsed_time_by_model(results, args.outdir)
 
