@@ -86,6 +86,9 @@ class CognitiveTest:
         # Track the position of the punched hole and the correct choice
         self.punch_position = None
         self.correct_choice = None
+        # Positions already used, so no two choices 
+        # (including the correct one) can ever land on the same spot.
+        self.used_positions = set()
 
     def fold(self, orientation):
         """Fold the test paper in the given orientation and record it."""
@@ -100,18 +103,42 @@ class CognitiveTest:
 
     def generate_choices(self):
         """Generate five choice papers by copying the test paper, """
-        """and punching a hole at a random position in each."""
+        """and punching a hole at a random position in each, avoiding """
+        """any position that's already been used by another choice."""
         for key in self.choices:
             candidate = copy.deepcopy(self.test_paper)
-            x = random.randint(0, self.test_paper.current_width - 1)
-            y = random.randint(0, self.test_paper.current_height - 1)
+            remaining = [
+                (px, py)
+                for py in range(self.test_paper.current_height)
+                for px in range(self.test_paper.current_width)
+                if (px, py) not in self.used_positions
+            ]
+            if not remaining:
+                print("[warning] No unused positions left; reusing a position.")
+                x = random.randint(0, self.test_paper.current_width - 1)
+                y = random.randint(0, self.test_paper.current_height - 1)
+            else:
+                x, y = random.choice(remaining)
+            self.used_positions.add((x, y))
             candidate.punch(x, y)
             self.choices[key] = candidate
 
     def punch_random(self):
-        """Punch the real test paper at a random in-bounds position."""
-        x = random.randint(0, self.test_paper.current_width - 1)
-        y = random.randint(0, self.test_paper.current_height - 1)
+        """Punch the real test paper at a random in-bounds position that """
+        """hasn't already been used by one of the decoy choices."""
+        remaining = [
+            (px, py)
+            for py in range(self.test_paper.current_height)
+            for px in range(self.test_paper.current_width)
+            if (px, py) not in self.used_positions
+        ]
+        if not remaining:
+            print("[warning] No unused positions left; reusing a position.")
+            x = random.randint(0, self.test_paper.current_width - 1)
+            y = random.randint(0, self.test_paper.current_height - 1)
+        else:
+            x, y = random.choice(remaining)
+        self.used_positions.add((x, y))
         self.test_paper.punch(x, y)
         self.punch_position = (x, y)
         return x, y
@@ -136,12 +163,12 @@ class CognitiveTest:
             f"A square paper with dimensions {self.test_paper.ORIGINAL_WIDTH}x"
             f"{self.test_paper.ORIGINAL_HEIGHT} is folded in this order: "
             f"{' -> '.join(self.fold_orientations)}.",
-            f"After these folds, the papers dimensions are {self.test_paper.current_width}x"
-            f"{self.test_paper.current_height}. "
+            f"After these folds, the papers dimensions are {self.folded_width}x"
+            f"{self.folded_height}. "
             "A hole is then punched through all layers at one position on "
             "this folded paper. Here is the folded paper with the hole "
             "punched (1 = hole, 0 = no hole):",
-            f"\n{self.test_paper.face_to_string()}\n",
+            f"\n{self.folded_face}\n",
             "If this folded, punched paper were fully unfolded back to its "
             "original size, it would match exactly one of the five candidates "
             "below (A-E). 1 = hole, 0 = no hole.",
@@ -182,6 +209,12 @@ class CognitiveTest:
         self.fold_random(num_folds)
         self.generate_choices()
         x, y = self.punch_random()
+        # Snapshot the folded, punched paper here,
+        # generate_answer() below unfolds test_paper back to full size.
+        # build_prompt() needs to show THIS state, not the unfolded one.
+        self.folded_width = self.test_paper.current_width
+        self.folded_height = self.test_paper.current_height
+        self.folded_face = self.test_paper.face_to_string()
         correct_choice = self.generate_answer()
         prompt = self.build_prompt()
         # Call the solver (AI model) with the generated prompt, if a solver is provided.
