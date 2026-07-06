@@ -25,7 +25,6 @@ GEMINI_MODELS = [
 GPT_MODELS = [
     "o3-2025-04-16",
     "gpt-5-nano-2025-08-07",
-    "chatgpt-4o-latest",
     "gpt-5.5-2026-04-23",
     "gpt-5.4-mini-2026-03-17",
 ]
