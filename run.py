@@ -6,13 +6,15 @@ import cognitive_test
 import gemini
 
 # Constants
-NUM_TRIALS = 20
+NUM_TRIALS = 30
 RESULTS_FILE = "results.json"
 # AI models to use for the cognitive test
-# AI models to use for the cognitive test
 GEMINI_MODELS = [
+    "gemini-3.5-flash",
     "gemini-3.1-flash-lite",
-    "gemini-2.5-flash",
+    "gemini-3.1-pro-preview",
+    "gemini-3-flash-preview",
+    "gemini-2.5-flash"
 ]
 
 def load_existing_results():
