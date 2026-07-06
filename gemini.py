@@ -7,10 +7,8 @@ from google.genai import errors
 # Load API key from .env file
 load_dotenv()
 
-client = genai.Client(
-    # If Gemini does not respond in 60 seconds, raise a timeout error
-    http_options=types.HttpOptions(timeout=60000)
-)
+# Initialize the Gemini client
+client = genai.Client()
 
 def call_gemini(prompt, model="gemini-3.5-flash", max_retries=3):
     """Call Gemini once with the given prompt and model, retrying up to max_retries times if necessary."""

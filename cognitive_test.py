@@ -133,18 +133,25 @@ class CognitiveTest:
         """Build the text prompt sent to the AI model for evaluation. """
         """Returns a string containing the test description, fold sequence, and choice papers."""
         lines = [
-            f"A square paper with dimensions {self.test_paper.current_width}x"
-            f"{self.test_paper.current_height} is folded several times, a hole "
-            "is punched through all layers at a random position, then it is unfolded.",
-            f"Fold sequence: {' -> '.join(self.fold_orientations)}",
-            "\nBelow are five candidates for how the folded paper might look when unfolded (A-E). "
-            "1 = hole, 0 = no hole.",
+            f"A square paper with dimensions {self.test_paper.ORIGINAL_WIDTH}x"
+            f"{self.test_paper.ORIGINAL_HEIGHT} is folded in this order: "
+            f"{' -> '.join(self.fold_orientations)}.",
+            f"After these folds, the papers dimensions are {self.test_paper.current_width}x"
+            f"{self.test_paper.current_height}. "
+            "A hole is then punched through all layers at one position on "
+            "this folded paper. Here is the folded paper with the hole "
+            "punched (1 = hole, 0 = no hole):",
+            f"\n{self.test_paper.face_to_string()}\n",
+            "If this folded, punched paper were fully unfolded back to its "
+            "original size, it would match exactly one of the five candidates "
+            "below (A-E). 1 = hole, 0 = no hole.",
         ]
         for key, choice_paper in self.choices.items():
             lines.append(f"\nChoice {key}:")
             lines.append(choice_paper.face_to_string())
         lines.append(
-            "\nWhich choice (A, B, C, D, or E) is the paper if it were unfolded? Respond with only the single letter."
+            "\nWhich choice (A, B, C, D, or E) matches the paper above once "
+            "fully unfolded? Respond with only the single letter."
         )
         return "\n".join(lines)
 
