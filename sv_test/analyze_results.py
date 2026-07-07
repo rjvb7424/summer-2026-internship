@@ -186,7 +186,7 @@ def plot_elapsed_time_by_model(results, outdir):
     fig.savefig(os.path.join(outdir, "elapsed_time_by_model.png"), dpi=150)
     plt.close(fig)
 
-def main():
+def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("--results", default="results.json", help="Path to results.json")
     parser.add_argument("--outdir", default="plots", help="Directory to save graphs")
@@ -210,4 +210,4 @@ def main():
     print(f"\nGraphs saved to {os.path.abspath(args.outdir)}/")
 
 if __name__ == "__main__":
-    main()
+    run()

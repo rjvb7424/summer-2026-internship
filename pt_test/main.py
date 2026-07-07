@@ -4,7 +4,7 @@ from functools import partial
 
 # Internal imports
 from navigation_experiment import NavigationTrial
-import huggingface
+import spatial_visualisation.huggingface as huggingface
 
 # --------------------------------------------------------------------------
 # Constants

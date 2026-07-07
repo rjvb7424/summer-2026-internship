@@ -2,17 +2,20 @@ import json
 import os
 from functools import partial
 # Internal imports
-import cognitive_test
-import gemini
-import gpt
+import spatial_visualisation.cognitive_test as cognitive_test
+import spatial_visualisation.analyze_results as analyze_results
+import spatial_visualisation.gemini as gemini
+import spatial_visualisation.gpt as gpt
+import spatial_visualisation.huggingface as huggingface
 
 # Constants
-NUM_TRIALS = 30
+NUM_TRIALS = 10
 RESULTS_FILE = "results.json"
 
 # Toggle which AI providers to run.
 RUN_GEMINI = False
-RUN_GPT = True
+RUN_GPT = False
+RUN_HUGGINGFACE = True
 
 # AI models to use for the cognitive test
 GEMINI_MODELS = [
@@ -27,6 +30,9 @@ GPT_MODELS = [
     "gpt-5-nano-2025-08-07",
     "gpt-5.5-2026-04-23",
     "gpt-5.4-mini-2026-03-17",
+]
+HUGGINGFACE_MODELS = [
+    "microsoft/Phi-4-mini-instruct",
 ]
 
 def load_existing_results():
@@ -49,6 +55,10 @@ def gpt_solver(prompt, model):
     """Call the ChatGPT API with the given prompt and return the result."""
     return gpt.call_gpt(prompt, model=model)
 
+def huggingface_solver(prompt, model):
+    """Call a Hugging Face text-generation model with the given prompt and return the result."""
+    return huggingface.call_huggingface(prompt, model=model)
+
 # Build the list of (model_name, solver_function) pairs to actually run,
 # respecting the toggles above. Each model keeps track
 # of which solver function it needs to be called with.
@@ -57,6 +67,8 @@ if RUN_GEMINI:
     models_to_run += [(model, gemini_solver) for model in GEMINI_MODELS]
 if RUN_GPT:
     models_to_run += [(model, gpt_solver) for model in GPT_MODELS]
+if RUN_HUGGINGFACE:
+    models_to_run += [(model, huggingface_solver) for model in HUGGINGFACE_MODELS]
 # If no models are enabled, print a message and exit.
 if not models_to_run:
     print("No providers enabled!")
@@ -104,3 +116,4 @@ scored = [r for r in results if r.get("is_correct") is not None]
 if scored:
     correct = sum(1 for r in scored if r["is_correct"])
     print(f"\n=== Overall accuracy across all models: {correct}/{len(scored)} ({100*correct/len(scored):.1f}%) ===")
+    analyze_results.run()
