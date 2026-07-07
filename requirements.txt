@@ -42,3 +42,5 @@ websockets==16.0
 transformers
 langchain
 langchain-huggingface
+torch
+accelerate
