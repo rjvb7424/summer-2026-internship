@@ -57,7 +57,7 @@ def save_results(results):
 def huggingface_solver(prompt, model):
     """Call a local Hugging Face model with the given prompt and return the result."""
     return huggingface.call_huggingface(
-        prompt, model=model, max_new_tokens=HUGGINGFACE_MAX_NEW_TOKENS, show_live_output=HUGGINGFACE_STREAM_OUTPUT
+        prompt, model=model, show_live_output=HUGGINGFACE_STREAM_OUTPUT
     )
 
 

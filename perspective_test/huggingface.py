@@ -1,13 +1,5 @@
-"""
-Generic solver module for any Hugging Face text-generation model, run
-locally via transformers. Exposes call_huggingface(prompt, model=...) with
-the same return shape as gpt.py's call_gpt / gemini.py's call_gemini, so it
-can be used as a drop-in solver in main.py for any model on the Hub - just
-add its model ID to HUGGINGFACE_MODELS in main.py.
-"""
 import re
 import time
-
 import torch
 from transformers import pipeline, StoppingCriteria, StoppingCriteriaList, TextStreamer
 
