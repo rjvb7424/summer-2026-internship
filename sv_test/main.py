@@ -2,14 +2,14 @@ import json
 import os
 from functools import partial
 # Internal imports
-import spatial_visualisation.cognitive_test as cognitive_test
-import spatial_visualisation.analyze_results as analyze_results
-import spatial_visualisation.gemini as gemini
-import spatial_visualisation.gpt as gpt
-import spatial_visualisation.huggingface as huggingface
+import cognitive_test
+import analyze_results
+import gemini
+import gpt
+import huggingface
 
 # Constants
-NUM_TRIALS = 10
+NUM_TRIALS = 30
 RESULTS_FILE = "results.json"
 
 # Toggle which AI providers to run.
