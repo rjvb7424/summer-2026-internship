@@ -23,8 +23,15 @@ MAP_SIZE = 10
 # MAX_TURNS = 50) to use a fixed budget for every trial instead.
 MAX_TURNS = None
 
-# How many new tokens each model call is allowed to generate.
-HUGGINGFACE_MAX_NEW_TOKENS = 1024
+# How many new tokens each model call is allowed to generate. Phi-2 tends
+# to ramble past its actual answer (it's a base/completion model, not
+# instruction-tuned), so this is kept modest rather than the thousands of
+# tokens a reasoning model like DeepSeek-R1 would need.
+HUGGINGFACE_MAX_NEW_TOKENS = 256
+
+# Prints each model's tokens to the terminal live as they're generated.
+# Turn this off if you want quieter logs once you trust it's working.
+HUGGINGFACE_STREAM_OUTPUT = True
 
 # Any model ID from huggingface.co goes here - the script runs every model
 # in this list through the same navigation experiment, one after another.
@@ -49,7 +56,9 @@ def save_results(results):
 
 def huggingface_solver(prompt, model):
     """Call a local Hugging Face model with the given prompt and return the result."""
-    return huggingface.call_huggingface(prompt, model=model, max_new_tokens=HUGGINGFACE_MAX_NEW_TOKENS)
+    return huggingface.call_huggingface(
+        prompt, model=model, max_new_tokens=HUGGINGFACE_MAX_NEW_TOKENS, show_live_output=HUGGINGFACE_STREAM_OUTPUT
+    )
 
 
 # Every model in HUGGINGFACE_MODELS uses the same solver function - there's
