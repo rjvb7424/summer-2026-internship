@@ -396,8 +396,11 @@ class ArchipelagoMap:
     # ------------------------------------------------------------------
 
     def render(self, use_emoji=True):
-        """Prints the map to the console, marking the ship's start and goal
-        positions."""
+        """Prints the full map to the console: terrain and the goal
+        position, but deliberately NOT the ship's current position - the
+        whole point of this experiment is that the ship doesn't know where
+        on the map it is. Use Ship.render_local_view() to see what the ship
+        itself can observe."""
         if use_emoji:
             # Plain colored-square emoji only: these are fixed single-width
             # glyphs, so columns stay aligned in a monospace terminal (unlike
@@ -409,18 +412,16 @@ class ArchipelagoMap:
                 "land": "🟩",
                 "mountain": "🟫",
             }
-            ship_symbol, goal_symbol = "🟥", "🟪"
+            goal_symbol = "🟪"
         else:
             terrain_symbols = {"water": "~", "beach": ".", "land": "#", "mountain": "^"}
-            ship_symbol, goal_symbol = "S", "G"
+            goal_symbol = "G"
 
         for row in range(self.size):
             row_characters = []
             for col in range(self.size):
                 position = (row, col)
-                if position == self.ship_start_position:
-                    row_characters.append(ship_symbol)
-                elif position == self.ship_goal_position:
+                if position == self.ship_goal_position:
                     row_characters.append(goal_symbol)
                 else:
                     row_characters.append(terrain_symbols[self.terrain_grid[row, col]])
