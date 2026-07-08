@@ -6,7 +6,7 @@ import cognitive_test
 import analyze_results
 import gemini
 import gpt
-import huggingface
+import crafter_experiment_files.huggingface as huggingface
 
 # Constants
 NUM_TRIALS = 30
