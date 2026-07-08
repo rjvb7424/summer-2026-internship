@@ -2,7 +2,6 @@ import json
 import os
 import re
 from functools import partial
-
 # Internal imports
 import analyze_results
 import gemini
@@ -10,20 +9,20 @@ import gpt
 import huggingface
 from crafter_test import CrafterTest
 
-# Experiment configuration
-NUM_TRIALS = 1
-MAX_STEPS = 50
+# Experiment configuration constants.
+NUM_TRIALS = 5
+MAX_STEPS = 200
 BASE_SEED = 20260708
-RESULTS_FILE = "crafter_results.json"
-RECORD_DIRECTORY = "crafter_recordings"
+RESULTS_FILE = "results.json"
+RECORD_DIRECTORY = "recordings"
 
-# Set to False for faster headless experiments.
+# Toggle experiment features.
 SHOW_SIMULATION = True
 RECORD_VIDEO = True
 SAVE_PROMPTS = False
 RUN_ANALYSIS = True
 
-# Toggle which AI providers to run.
+# Toggle which AI providers to run in the experiment.
 RUN_GEMINI = False
 RUN_GPT = True
 RUN_HUGGINGFACE = False
@@ -49,7 +48,6 @@ HUGGINGFACE_MODELS = [
     "deepseek-ai/DeepSeek-V2-Lite-Chat",
 ]
 
-
 def load_existing_results():
     """Load existing results if present, otherwise return an empty list."""
     if os.path.exists(RESULTS_FILE):
@@ -57,32 +55,29 @@ def load_existing_results():
             return json.load(file)
     return []
 
-
 def save_results(results):
     """Save all experiment results after each episode."""
     with open(RESULTS_FILE, "w", encoding="utf-8") as file:
         json.dump(results, file, indent=2)
 
-
 def gemini_solver(prompt, model):
     """Call Gemini with the given prompt and model."""
     return gemini.call_gemini(prompt, model=model)
-
 
 def gpt_solver(prompt, model):
     """Call GPT with the given prompt and model."""
     return gpt.call_gpt(prompt, model=model)
 
-
 def huggingface_solver(prompt, model):
     """Call a local Hugging Face model with the given prompt."""
     return huggingface.call_huggingface(prompt, model=model)
 
-
+# Some models may have characters that are not safe for directory names.
+# Therefore we sanitize the model identifier to create a safe directory name.
+# This is used in the "recordings" directory to store video recordings for each model and trial.
 def safe_directory_name(value):
     """Convert a model identifier into a safe directory name."""
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", value)
-
 
 def build_models_to_run():
     """Build the enabled list of model and solver pairs."""
@@ -97,15 +92,16 @@ def build_models_to_run():
         ]
     return models_to_run
 
-
 def main():
     models_to_run = build_models_to_run()
+    # Check if any providers are enabled; if not, print a message and exit.
     if not models_to_run:
         print("No providers enabled!")
         return
 
     results = load_existing_results()
 
+    # For each model, run the specified number of trials, skipping any that have already been completed.
     for model, solver_fn in models_to_run:
         model_results = [
             result
@@ -120,10 +116,10 @@ def main():
                 "trials, skipping ==="
             )
             continue
-
-        print(f"\n### Model: {model} ({start_trial}/{NUM_TRIALS} done) ###")
+        print(f"\n=== Model: {model} ({start_trial}/{NUM_TRIALS} done) ===")
         solver = partial(solver_fn, model=model)
 
+        # For each trial, run the Crafter test and record the results.
         for trial_index in range(start_trial, NUM_TRIALS):
             trial_number = trial_index + 1
             seed = BASE_SEED + trial_index
@@ -182,6 +178,7 @@ def main():
             if result.get("model_version") == model
             and result.get("error") is None
         ]
+        # If there are completed trials, calculate and print the average reward and achievements for the model.
         if completed:
             average_reward = sum(
                 result.get("total_reward", 0) for result in completed
@@ -193,10 +190,9 @@ def main():
                 f"\n{model} averages: reward={average_reward:.2f}, "
                 f"achievements={average_achievements:.2f}"
             )
-
+    # If all trials for all models are completed, run the analysis if enabled.
     if RUN_ANALYSIS:
         analyze_results.run()
-
 
 if __name__ == "__main__":
     main()
