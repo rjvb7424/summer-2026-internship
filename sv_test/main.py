@@ -33,6 +33,10 @@ GPT_MODELS = [
 ]
 HUGGINGFACE_MODELS = [
     "microsoft/Phi-4-mini-instruct",
+    "nvidia/Llama3-ChatQA-1.5-8B",
+    "Intel/neural-chat-7b-v3-1",
+    "deepseek-ai/DeepSeek-V2-Lite-Chat",
+    "meta-llama/Llama-2-7b-chat-hf",
 ]
 
 def load_existing_results():

@@ -9,11 +9,17 @@ def get_pipeline(model):
     if model not in _PIPELINE_CACHE:
         print(f"[{model}] Loading model into memory...")
 
-        _PIPELINE_CACHE[model] = pipeline(
+        pipe = pipeline(
             task="text-generation",
             model=model,
             dtype="auto",
+            device_map="auto",
+            model_kwargs={
+                "max_memory": {"mps": "10GiB", "cpu": "2GiB"},
+                "offload_folder": "hf_offload",
+            },
         )
+        _PIPELINE_CACHE[model] = pipe
 
     return _PIPELINE_CACHE[model]
 
@@ -43,6 +49,7 @@ def call_huggingface(prompt, model, max_retries=3):
                 tokenizer,
                 skip_prompt=True,
                 skip_special_tokens=True,
+                clean_up_tokenization_spaces=False,
             )
 
             def generate():
@@ -51,6 +58,7 @@ def call_huggingface(prompt, model, max_retries=3):
                         messages,
                         streamer=streamer,
                         return_full_text=False,
+                        max_new_tokens=1024,
                     )
                 except Exception as error:
                     generation_error.append(error)
@@ -58,10 +66,6 @@ def call_huggingface(prompt, model, max_retries=3):
 
             thread = Thread(target=generate)
             thread.start()
-
-            for chunk in streamer:
-                partial_text += chunk
-                print(chunk, end="", flush=True)
 
             thread.join()
             elapsed = time.time() - start
