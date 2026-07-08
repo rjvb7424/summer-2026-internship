@@ -16,7 +16,6 @@ def get_pipeline(model):
             device_map="auto",
             model_kwargs={
                 "max_memory": {"mps": "10GiB", "cpu": "2GiB"},
-                "offload_folder": "hf_offload",
             },
         )
         _PIPELINE_CACHE[model] = pipe
