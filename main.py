@@ -24,8 +24,8 @@ RUN_ANALYSIS = True
 
 # Toggle which AI providers to run in the experiment.
 RUN_GEMINI = False
-RUN_GPT = True
-RUN_HUGGINGFACE = False
+RUN_GPT = False
+RUN_HUGGINGFACE = True
 
 # AI models to use for the Crafter experiment.
 GEMINI_MODELS = [
@@ -43,9 +43,6 @@ GPT_MODELS = [
 ]
 HUGGINGFACE_MODELS = [
     "microsoft/Phi-4-mini-instruct",
-    "meta-llama/Llama-2-7b-chat-hf",
-    "Intel/neural-chat-7b-v3-1",
-    "deepseek-ai/DeepSeek-V2-Lite-Chat",
 ]
 
 def load_existing_results():
@@ -60,17 +57,37 @@ def save_results(results):
     with open(RESULTS_FILE, "w", encoding="utf-8") as file:
         json.dump(results, file, indent=2)
 
-def gemini_solver(prompt, model):
-    """Call Gemini with the given prompt and model."""
-    return gemini.call_gemini(prompt, model=model)
+def flatten_messages(messages):
+    """Convert chat messages to a plain prompt for non-chat wrappers."""
+    if isinstance(messages, str):
+        return messages
 
-def gpt_solver(prompt, model):
-    """Call GPT with the given prompt and model."""
-    return gpt.call_gpt(prompt, model=model)
+    return "\n\n".join(
+        f"{message['role'].upper()}:\n{message['content']}"
+        for message in messages
+    )
 
-def huggingface_solver(prompt, model):
-    """Call a local Hugging Face model with the given prompt."""
-    return huggingface.call_huggingface(prompt, model=model)
+def gemini_solver(messages, model, candidate_actions=None):
+    """Call Gemini using the same system/state prompt content."""
+    return gemini.call_gemini(
+        flatten_messages(messages),
+        model=model,
+    )
+
+def gpt_solver(messages, model, candidate_actions=None):
+    """Call GPT using the same system/state prompt content."""
+    return gpt.call_gpt(
+        flatten_messages(messages),
+        model=model,
+    )
+
+def huggingface_solver(messages, model, candidate_actions=None):
+    """Let the local model score the state-aware action candidates."""
+    return huggingface.call_huggingface(
+        messages=messages,
+        model=model,
+        candidate_actions=candidate_actions,
+    )
 
 # Some models may have characters that are not safe for directory names.
 # Therefore we sanitize the model identifier to create a safe directory name.
