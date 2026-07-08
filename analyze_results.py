@@ -169,8 +169,8 @@ def run():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--results",
-        default="crafter_results.json",
-        help="Path to crafter_results.json",
+        default="results.json",
+        help="Path to results.json",
     )
     parser.add_argument(
         "--outdir",

@@ -7,7 +7,7 @@ from collections import deque
 import crafter
 import numpy as np
 
-from crafter_viewer import CrafterViewer
+from viewer import CrafterViewer
 
 # Prompt and execution configuration
 ACTION_HISTORY_LIMIT = 8

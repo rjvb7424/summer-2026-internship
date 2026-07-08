@@ -1,8 +1,7 @@
 import textwrap
-
 import pygame
 
-# Window configuration
+# Constants for the window size and layout.
 WINDOW_WIDTH = 1100
 WINDOW_HEIGHT = 720
 GAME_SIZE = 720
