@@ -2,11 +2,11 @@ import json
 import os
 from functools import partial
 # Internal imports
-import cognitive_test
-import analyze_results
+import legacy.sv_test.cognitive_test as cognitive_test
+import legacy.sv_test.analyze_results as analyze_results
 import gemini
 import gpt
-import crafter_experiment_files.huggingface as huggingface
+import huggingface as huggingface
 
 # Constants
 NUM_TRIALS = 30

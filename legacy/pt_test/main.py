@@ -3,7 +3,7 @@ import os
 from functools import partial
 
 # Internal imports
-from navigation_experiment import NavigationTrial
+from legacy.pt_test.navigation_experiment import NavigationTrial
 import spatial_visualisation.huggingface as huggingface
 
 # --------------------------------------------------------------------------

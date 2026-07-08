@@ -4,7 +4,7 @@ import re
 from functools import partial
 
 # Internal imports
-import analyze_crafter_results
+import analyze_results
 import gemini
 import gpt
 import huggingface
@@ -173,7 +173,7 @@ def main():
             if result.get("stopped_by_user"):
                 print("Simulation window closed. Stopping the experiment.")
                 if RUN_ANALYSIS:
-                    analyze_crafter_results.run()
+                    analyze_results.run()
                 return
 
         completed = [
@@ -195,7 +195,7 @@ def main():
             )
 
     if RUN_ANALYSIS:
-        analyze_crafter_results.run()
+        analyze_results.run()
 
 
 if __name__ == "__main__":

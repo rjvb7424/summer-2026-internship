@@ -6,8 +6,8 @@ until it reaches the goal or runs out of turns.
 """
 import re
 
-from archipelago import ArchipelagoMap
-from ship import Ship
+from legacy.pt_test.archipelago import ArchipelagoMap
+from legacy.pt_test.ship import Ship
 
 # --------------------------------------------------------------------------
 # Constants - change these to adjust how a trial is scored.

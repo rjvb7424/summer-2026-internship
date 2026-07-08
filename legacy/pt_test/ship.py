@@ -1,4 +1,4 @@
-from archipelago import ArchipelagoMap
+from legacy.pt_test.archipelago import ArchipelagoMap
 
 
 class Ship:
