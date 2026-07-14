@@ -7,7 +7,7 @@ import analyze_results
 import huggingface
 import gemini
 import gpt
-from crafter_test import CrafterTest
+from files.crafter.crafter_test import CrafterTest
 
 from config import (
     NUM_TRIALS,
