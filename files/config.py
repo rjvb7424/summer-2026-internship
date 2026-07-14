@@ -39,3 +39,7 @@ HUGGINGFACE_MODELS = [
     "meta-llama/Llama-3.2-3B-Instruct",
     "microsoft/Phi-4-mini-instruct",
 ]
+
+# HuggingFace generation parameters.
+MAX_NEW_TOKENS = 1024
+MAX_MEMORY = {"mps": "10GiB", "cpu": "2GiB"}

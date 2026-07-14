@@ -28,7 +28,7 @@ from config import (
 def load_existing_results():
     """Load existing results if present, otherwise return an empty list."""
     if os.path.exists(RESULTS_FILE):
-        with open(RESULTS_FILE, "r", encoding="utf-8") as file:
+        with open(RESULTS_FILE, "r") as file:
             return json.load(file)
     return []
 

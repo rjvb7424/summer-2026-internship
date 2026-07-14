@@ -1,6 +1,6 @@
 import time
-from threading import Thread
-from transformers import pipeline, TextIteratorStreamer
+from transformers import pipeline
+from config import MAX_MEMORY, MAX_NEW_TOKENS
 
 _PIPELINE_CACHE = {}
 
@@ -9,27 +9,52 @@ def get_pipeline(model):
     if model not in _PIPELINE_CACHE:
         print(f"[{model}] Loading model into memory...")
 
-        pipe = pipeline(
+        text_generation_pipeline = pipeline(
             task="text-generation",
             model=model,
             dtype="auto",
             device_map="auto",
-            model_kwargs={
-                "max_memory": {"mps": "10GiB", "cpu": "2GiB"},
-            },
+            model_kwargs={"max_memory": MAX_MEMORY},
         )
-    pipe.generation_config.max_new_tokens = 1024
-    pipe.generation_config.max_length = None
-    pipe.tokenizer.clean_up_tokenization_spaces = False
-    _PIPELINE_CACHE[model] = pipe
+        text_generation_pipeline.generation_config.max_new_tokens = MAX_NEW_TOKENS
+        text_generation_pipeline.generation_config.max_length = None
+        text_generation_pipeline.tokenizer.clean_up_tokenization_spaces = False
+
+        _PIPELINE_CACHE[model] = text_generation_pipeline
 
     return _PIPELINE_CACHE[model]
 
-def call_huggingface(prompt, model, max_retries=3):
-    """Call a Hugging Face chat model, retrying up to max_retries times."""
+def build_messages(prompt, system_prompt=None, history=None):
+    """Build a chat message list from the prompt, optional system prompt, and history."""
+    messages = list(history) if history else []
+
+    if system_prompt and not any(m["role"] == "system" for m in messages):
+        messages.insert(0, {"role": "system", "content": system_prompt})
+
+    messages.append({"role": "user", "content": prompt})
+    return messages
+
+def build_result(text, tokenizer, elapsed, prompt_tokens, model):
+    """Pack generated text and token counts into the standard result dict."""
+    output_tokens = len(tokenizer.encode(text, add_special_tokens=False))
+
+    return {
+        "text": text,
+        "elapsed_seconds": elapsed,
+        "prompt_tokens": prompt_tokens,
+        "output_tokens": output_tokens,
+        "thinking_tokens": None,
+        "total_tokens": prompt_tokens + output_tokens,
+        "finish_reason": None,
+        "model_version": model,
+        "is_partial": False,
+    }
+
+def call_huggingface(prompt, model, system_prompt=None, history=None, max_retries=3):
+    """Run a single generation request against a local Hugging Face model."""
     text_generation_pipeline = get_pipeline(model)
     tokenizer = text_generation_pipeline.tokenizer
-    messages = [{"role": "user", "content": prompt}]
+    messages = build_messages(prompt, system_prompt, history)
 
     prompt_tokens = len(
         tokenizer.apply_chat_template(
@@ -40,101 +65,24 @@ def call_huggingface(prompt, model, max_retries=3):
     )
 
     for attempt in range(1, max_retries + 1):
-        partial_text = ""
-        generation_error = []
         start = time.time()
 
         try:
-            print(f"[{model}] [Attempt {attempt}] Streaming request...")
+            print(f"[{model}] [Attempt {attempt}] Generating...")
 
-            streamer = TextIteratorStreamer(
-                tokenizer,
-                skip_prompt=True,
-                skip_special_tokens=True,
-                clean_up_tokenization_spaces=False,
-            )
+            outputs = text_generation_pipeline(messages, return_full_text=False)
+            generated_text = outputs[0]["generated_text"]
 
-            def generate():
-                try:
-                    text_generation_pipeline(
-                        messages,
-                        streamer=streamer,
-                        return_full_text=False,
-                    )
-                except Exception as error:
-                    generation_error.append(error)
-                    streamer.on_finalized_text("", stream_end=True)
-
-            thread = Thread(target=generate)
-            thread.start()
-
-            # Consume the stream to collect the output (no console echo).
-            for chunk in streamer:
-                partial_text += chunk
-
-            thread.join()
             elapsed = time.time() - start
+            print(f"[{model}] [Attempt {attempt}] Finished after {elapsed:.1f}s")
 
-            if generation_error:
-                raise generation_error[0]
-
-            print(
-                f"[{model}] [Attempt {attempt}] "
-                f"Stream finished after {elapsed:.1f}s"
-            )
-
-            if not partial_text:
+            if not generated_text:
                 print(f"[{model}] No text returned. Skipping.")
                 return None
 
-            output_tokens = len(
-                tokenizer.encode(
-                    partial_text,
-                    add_special_tokens=False,
-                )
-            )
-
-            return {
-                "text": partial_text,
-                "elapsed_seconds": elapsed,
-                "prompt_tokens": prompt_tokens,
-                "output_tokens": output_tokens,
-                "thinking_tokens": None,
-                "total_tokens": prompt_tokens + output_tokens,
-                "finish_reason": None,
-                "model_version": model,
-                "is_partial": False,
-            }
+            return build_result(generated_text, tokenizer, elapsed, prompt_tokens, model)
 
         except Exception as error:
-            elapsed = time.time() - start
-
-            if partial_text:
-                output_tokens = len(
-                    tokenizer.encode(
-                        partial_text,
-                        add_special_tokens=False,
-                    )
-                )
-
-                print(
-                    f"[{model}] [Attempt {attempt}] Generation failed after "
-                    f"{elapsed:.1f}s, but returned {len(partial_text)} "
-                    "characters. Returning partial result."
-                )
-
-                return {
-                    "text": partial_text,
-                    "elapsed_seconds": elapsed,
-                    "prompt_tokens": prompt_tokens,
-                    "output_tokens": output_tokens,
-                    "thinking_tokens": None,
-                    "total_tokens": prompt_tokens + output_tokens,
-                    "finish_reason": None,
-                    "model_version": model,
-                    "is_partial": True,
-                }
-
             wait = 2 ** attempt
             print(
                 f"[{model}] [Attempt {attempt}] Error: {error}. "
