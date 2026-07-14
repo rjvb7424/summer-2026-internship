@@ -110,11 +110,20 @@ def main():
             completed = store.completed_trials(model_name)
             if completed >= config.TRIALS_PER_MODEL:
                 continue
-            agent = create_agent(provider, model_name)
+            try:
+                agent = create_agent(provider, model_name)
+            except Exception as error:
+                print(f"[skip] {model_name}: {error}")
+                continue
             try:
                 for trial_index in range(completed, config.TRIALS_PER_MODEL):
                     record = run_trial(agent, trial_index, viewer)
                     store.append_trial(model_name, record)
+            except KeyboardInterrupt:
+                raise
+            except Exception as error:
+                print(f"[abort model] {model_name}: {error}")
+                # completed trials are saved; the run moves to the next model
             finally:
                 agent.unload()
     except KeyboardInterrupt:

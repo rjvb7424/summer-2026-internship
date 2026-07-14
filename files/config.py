@@ -9,8 +9,11 @@ ENABLE_OPENAI = True          # needs OPENAI_API_KEY
 ENABLE_GEMINI = True          # needs GEMINI_API_KEY or GOOGLE_API_KEY
 
 HUGGINGFACE_MODELS = [
+    "deepseek-ai/DeepSeek-V2-Lite-Chat",
+    "deepseek-ai/deepseek-llm-7b-chat",
+    "Qwen/Qwen3-4B-Instruct-2507",
+    "meta-llama/Llama-3.2-3B-Instruct",
     "microsoft/Phi-4-mini-instruct",
-    "microsoft/phi-2",
 ]
 OPENAI_MODELS = [
     "gpt-4o-mini",
@@ -29,7 +32,7 @@ MODELS = (
 # ============================================================
 # Experiment
 # ============================================================
-TRIALS_PER_MODEL = 3          # trials per model
+TRIALS_PER_MODEL = 5          # trials per model
 MAX_STEPS_PER_TRIAL = 300     # hard step cap per trial
 BASE_SEED = 42                # trial i uses seed BASE_SEED + i (same seeds across models)
 

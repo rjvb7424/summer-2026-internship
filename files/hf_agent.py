@@ -23,6 +23,33 @@ def _pick_device():
     return "cpu"
 
 
+GIB = 1024 ** 3
+LOAD_OVERHEAD_GIB = 1.5   # activations, KV cache, allocator slack
+
+
+def _check_fits_in_mps(model_name):
+    """Refuse to even start loading a model that cannot fit in the MPS budget."""
+    try:
+        from huggingface_hub import HfApi
+        siblings = HfApi().model_info(model_name, files_metadata=True).siblings
+        safetensors = [s for s in siblings if s.rfilename.endswith(".safetensors")]
+        files = safetensors or [s for s in siblings if s.rfilename.endswith(".bin")]
+        weight_bytes = sum(s.size or 0 for s in files)
+    except Exception:
+        return  # hub metadata unavailable; attempt the load anyway
+    if not weight_bytes:
+        return
+    ratio = float(os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"])
+    budget = torch.mps.recommended_max_memory() * ratio
+    needed = weight_bytes + LOAD_OVERHEAD_GIB * GIB
+    if needed > budget:
+        raise RuntimeError(
+            f"{model_name} needs ~{weight_bytes / GIB:.1f} GiB of weights but the "
+            f"MPS budget is {budget / GIB:.1f} GiB -- remove it from "
+            f"HUGGINGFACE_MODELS or pick a smaller variant (<~5B params at fp16)"
+        )
+
+
 class HuggingFaceAgent(BaseAgent):
     """Wraps one local HuggingFace causal LM as a Crafter policy."""
 
@@ -31,6 +58,8 @@ class HuggingFaceAgent(BaseAgent):
     def __init__(self, model_name):
         super().__init__(model_name)
         self.device = _pick_device()
+        if self.device == "mps":
+            _check_fits_in_mps(model_name)
         dtype = getattr(torch, config.TORCH_DTYPE) if self.device != "cpu" else torch.float32
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         # device_map pinned to one device streams weights shard-by-shard
