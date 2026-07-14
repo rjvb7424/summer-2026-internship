@@ -5,6 +5,8 @@ from functools import partial
 # Internal imports
 import analyze_results
 import huggingface
+import gemini
+import gpt
 from crafter_test import CrafterTest
 
 from config import (
@@ -28,8 +30,11 @@ from config import (
 def load_existing_results():
     """Load existing results if present, otherwise return an empty list."""
     if os.path.exists(RESULTS_FILE):
-        with open(RESULTS_FILE, "r") as file:
-            return json.load(file)
+        try:
+            with open(RESULTS_FILE, "r", encoding="utf-8") as file:
+                return json.load(file)
+        except json.JSONDecodeError:
+            print(f"Warning: {RESULTS_FILE} is empty or corrupted. Starting fresh.")
     return []
 
 def save_results(results):
@@ -47,35 +52,28 @@ def safe_directory_name(value):
 def build_models_to_run():
     """Build the enabled list of model and solver pairs."""
     models_to_run = []
+    if RUN_GEMINI:
+        models_to_run += [(model, gemini.call_gemini) for model in GEMINI_MODELS]
+    if RUN_GPT:
+        models_to_run += [(model, gpt.call_gpt) for model in GPT_MODELS]
     if RUN_HUGGINGFACE:
-        models_to_run += [
-            (model, huggingface.call_huggingface) for model in HUGGINGFACE_MODELS
-        ]
+        models_to_run += [(model, huggingface.call_huggingface) for model in HUGGINGFACE_MODELS]
     return models_to_run
 
 def main():
+    # Load existing results and determine which models to run based on the configuration.
     models_to_run = build_models_to_run()
-    # Check if any providers are enabled; if not, print a message and exit.
     if not models_to_run:
         print("No providers enabled!")
         return
-
     results = load_existing_results()
 
-    # For each model, run the specified number of trials, skipping any that have already been completed.
     for model, solver_fn in models_to_run:
-        model_results = [
-            result
-            for result in results
-            if result.get("model_version") == model
-        ]
+        # For each model, check how many trials have already been completed and skip those.
+        model_results = [ result for result in results if result.get("model_version") == model]
         start_trial = len(model_results)
-
         if start_trial >= NUM_TRIALS:
-            print(
-                f"\n=== {model}: already has {start_trial}/{NUM_TRIALS} "
-                "trials, skipping ==="
-            )
+            print(f"\n=== {model}: already has {start_trial}/{NUM_TRIALS}, skipping ===")
             continue
         print(f"\n=== Model: {model} ({start_trial}/{NUM_TRIALS} done) ===")
         solver = partial(solver_fn, model=model)
@@ -153,7 +151,7 @@ def main():
             )
     # If all trials for all models are completed, run the analysis if enabled.
     if RUN_ANALYSIS:
-        analyze_results.run()
+        analyze_results.main()
 
 if __name__ == "__main__":
     main()
