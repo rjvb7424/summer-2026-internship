@@ -3,8 +3,8 @@
 import gc
 import os
 
-os.environ.setdefault("PYTORCH_MPS_HIGH_WATERMARK_RATIO", "0.85")
-os.environ.setdefault("PYTORCH_MPS_LOW_WATERMARK_RATIO", "0.75")
+os.environ.setdefault("PYTORCH_MPS_HIGH_WATERMARK_RATIO", "0.8")
+os.environ.setdefault("PYTORCH_MPS_LOW_WATERMARK_RATIO", "0.7")
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 import torch
@@ -33,12 +33,16 @@ class HuggingFaceAgent(BaseAgent):
         self.device = _pick_device()
         dtype = getattr(torch, config.TORCH_DTYPE) if self.device != "cpu" else torch.float32
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        # device_map pinned to one device streams weights shard-by-shard
+        # straight onto MPS -- never holding a full second copy in CPU RAM.
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             dtype=dtype,
             low_cpu_mem_usage=True,
-        ).to(self.device)
+            device_map={"": self.device},
+        )
         self.model.eval()
+        gc.collect()  # drop loader buffers before the first step
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         if self.device == "cpu":

@@ -9,11 +9,8 @@ ENABLE_OPENAI = True          # needs OPENAI_API_KEY
 ENABLE_GEMINI = True          # needs GEMINI_API_KEY or GOOGLE_API_KEY
 
 HUGGINGFACE_MODELS = [
-    "deepseek-ai/DeepSeek-V2-Lite-Chat",
-    "deepseek-ai/deepseek-llm-7b-chat",
-    "Qwen/Qwen3-4B-Instruct-2507",
-    "meta-llama/Llama-3.2-3B-Instruct",
     "microsoft/Phi-4-mini-instruct",
+    "microsoft/phi-2",
 ]
 OPENAI_MODELS = [
     "gpt-4o-mini",
@@ -32,7 +29,7 @@ MODELS = (
 # ============================================================
 # Experiment
 # ============================================================
-TRIALS_PER_MODEL = 5          # trials per model
+TRIALS_PER_MODEL = 3          # trials per model
 MAX_STEPS_PER_TRIAL = 300     # hard step cap per trial
 BASE_SEED = 42                # trial i uses seed BASE_SEED + i (same seeds across models)
 
@@ -58,9 +55,10 @@ API_RETRY_DELAY_SEC = 2       # backoff base: delay * attempt
 # Hardware (Apple Silicon friendly)
 # ============================================================
 # Cap MPS memory so the run never hard-crashes the machine.
-# High = hard cap (0.85 = 85% of unified memory); low = GC trigger, must be <= high.
-MPS_HIGH_WATERMARK_RATIO = "0.85"
-MPS_LOW_WATERMARK_RATIO = "0.75"
+# High = hard cap (share of unified memory); low = GC trigger, must be <= high.
+# 0.8 keeps ~20% free for macOS + your editor while the experiment stays priority.
+MPS_HIGH_WATERMARK_RATIO = "0.8"
+MPS_LOW_WATERMARK_RATIO = "0.7"
 TORCH_DTYPE = "float16"       # fp16 on MPS; falls back to float32 on CPU
 
 # ============================================================
