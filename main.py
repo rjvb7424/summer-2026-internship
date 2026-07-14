@@ -1,235 +1,66 @@
+"""
+main.py
+=======
+
+One command to run an experiment end to end:
+
+    python main.py                 # run + plots + viewer, using config.yaml
+    python main.py my_config.yaml
+    python main.py --skip-analyze  # just run the trials
+    python main.py --skip-run      # only (re)build plots + viewer from results
+
+The experiment is defined entirely by the YAML config; this file only wires the
+pieces together and configures logging.
+"""
+
 from __future__ import annotations
 
-import json
-import sys
-import time
-from pathlib import Path
+import argparse
+import logging
 
-import pygame
-
-import config
-from crafter_env import FixedCrafterWorld
-from hf_agent import HuggingFaceAgent
+from config import load_config
+from experiment import ExperimentRunner
 
 
-def draw_world(
-    screen,
-    game,
-    trial_number,
-    turn,
-    action,
-    success,
-):
-    frame = game.render()
-    surface = pygame.surfarray.make_surface(
-        frame.swapaxes(0, 1)
-    )
-    screen.blit(surface, (0, 0))
-
-    panel = pygame.Surface((config.WINDOW_SIZE, 115))
-    panel.set_alpha(220)
-    panel.fill((0, 0, 0))
-    screen.blit(panel, (0, 0))
-
-    font = pygame.font.Font(None, 28)
-    small = pygame.font.Font(None, 23)
-
-    title = font.render(
-        f"Trial {trial_number}/{config.NUM_TRIALS} | Turn {turn}",
-        True,
-        (255, 255, 255),
-    )
-    screen.blit(title, (16, 12))
-
-    state = game.state()
-    lines = [
-        f"Goal: {config.GOAL_DESCRIPTION}",
-        f"Action: {action}",
-        (
-            f"Position: {state['position']} | "
-            f"Facing: {state['facing']} | "
-            f"Wood: {state['inventory'].get('wood', 0)}"
-        ),
-    ]
-
-    y = 43
-    for line in lines:
-        text = small.render(line, True, (235, 235, 235))
-        screen.blit(text, (16, y))
-        y += 22
-
-    if success:
-        text = font.render(
-            "ACHIEVEMENT UNLOCKED",
-            True,
-            (255, 235, 120),
-        )
-        screen.blit(text, (config.WINDOW_SIZE - 275, 15))
-
-    pygame.display.flip()
-
-
-def process_window_events() -> bool:
-    """Return False when the user closes the visualizer."""
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            return False
-        if (
-            event.type == pygame.KEYDOWN
-            and event.key == pygame.K_ESCAPE
-        ):
-            return False
-    return True
-
-
-def save_results(results):
-    path = Path(config.RESULTS_FILE)
-    path.write_text(
-        json.dumps(results, indent=2),
-        encoding="utf-8",
+def configure_logging() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s  %(levelname)-7s  %(message)s",
+        datefmt="%H:%M:%S",
     )
 
 
-def run_trial(
-    agent,
-    trial_index,
-    screen,
-):
-    seed = config.BASE_SEED + trial_index
-    game = FixedCrafterWorld(seed=seed)
+def main() -> None:
+    ap = argparse.ArgumentParser(description="Run a Crafter LLM experiment.")
+    ap.add_argument("config", nargs="?", default="config.yaml",
+                    help="path to the experiment config (default: config.yaml)")
+    ap.add_argument("--skip-run", action="store_true", help="don't run trials")
+    ap.add_argument("--skip-analyze", action="store_true", help="don't build plots")
+    ap.add_argument("--skip-viewer", action="store_true", help="don't build viewer.html")
+    args = ap.parse_args()
 
-    history = []
-    total_reward = 0.0
-    success = False
-    stopped_by_user = False
-    start_time = time.perf_counter()
+    configure_logging()
+    cfg = load_config(args.config)
 
-    if screen is not None:
-        draw_world(
-            screen,
-            game,
-            trial_index + 1,
-            turn=0,
-            action="not started",
-            success=False,
-        )
+    if not args.skip_run:
+        ExperimentRunner(cfg).run()
 
-    # Turn counting and experiment flow live here in main.py.
-    for turn in range(1, config.MAX_TURNS + 1):
-        if screen is not None and not process_window_events():
-            stopped_by_user = True
-            break
+    if not args.skip_analyze:
+        import analyze_results
+        results = __import__("json").loads(cfg.results_path.read_text())
+        rows = analyze_results.summarise(results)
+        cfg.plots_dir.mkdir(parents=True, exist_ok=True)
+        analyze_results.plot_success_rate(rows, cfg.plots_dir / "success_rate.png")
+        analyze_results.plot_turns_to_success(rows, cfg.plots_dir / "turns_to_success.png")
+        analyze_results.plot_think_time(rows, cfg.plots_dir / "think_time.png")
+        analyze_results.plot_success_matrix(rows, cfg.plots_dir / "success_matrix.png")
+        analyze_results.print_summary(results, rows)
 
-        observation = game.observation_text(
-            turn=turn,
-            history=history,
-        )
-
-        action, raw_response = agent.choose_action(observation)
-
-        _, reward, env_done, info = game.execute(action)
-        total_reward += float(reward)
-
-        wood = int(game.player.inventory.get("wood", 0))
-        success = game.has_achievement(config.GOAL_ACHIEVEMENT)
-
-        step_record = {
-            "turn": turn,
-            "action": action,
-            "raw_response": raw_response,
-            "reward": float(reward),
-            "wood": wood,
-            "position": [
-                int(value) for value in game.player.pos
-            ],
-            "facing": game.facing_name(),
-            "achievement_unlocked": success,
-        }
-        history.append(step_record)
-
-        print(
-            f"[trial {trial_index + 1}] "
-            f"turn={turn:02d} action={action:<10} "
-            f"position={tuple(game.player.pos)} "
-            f"facing={game.facing_name():<5} wood={wood}"
-        )
-        print(f"  model: {raw_response!r}")
-
-        if screen is not None:
-            draw_world(
-                screen,
-                game,
-                trial_index + 1,
-                turn,
-                action,
-                success,
-            )
-            pygame.time.wait(config.TURN_DELAY_MS)
-
-        if success or env_done:
-            break
-
-    elapsed = time.perf_counter() - start_time
-
-    return {
-        "trial": trial_index + 1,
-        "seed": seed,
-        "model": config.MODEL_NAME,
-        "goal": config.GOAL_ACHIEVEMENT,
-        "success": success,
-        "turns": len(history),
-        "total_reward": total_reward,
-        "elapsed_seconds": elapsed,
-        "stopped_by_user": stopped_by_user,
-        "steps": history,
-    }
-
-
-def run():
-    screen = None
-
-    if config.VISUALIZE:
-        pygame.init()
-        screen = pygame.display.set_mode(
-            (config.WINDOW_SIZE, config.WINDOW_SIZE)
-        )
-        pygame.display.set_caption(
-            "Crafter Hugging Face wood experiment"
-        )
-
-    agent = HuggingFaceAgent()
-    results = []
-
-    try:
-        for trial_index in range(config.NUM_TRIALS):
-            result = run_trial(
-                agent=agent,
-                trial_index=trial_index,
-                screen=screen,
-            )
-            results.append(result)
-            save_results(results)
-
-            status = "SUCCESS" if result["success"] else "FAILED"
-            print(
-                f"\nTrial {result['trial']}: {status} "
-                f"after {result['turns']} turns "
-                f"({result['elapsed_seconds']:.1f}s)\n"
-            )
-
-            if result["stopped_by_user"]:
-                break
-    finally:
-        save_results(results)
-        if config.VISUALIZE:
-            pygame.quit()
-
-    successes = sum(result["success"] for result in results)
-    print(
-        f"Finished: {successes}/{len(results)} successful trials."
-    )
-    print(f"Results saved to {config.RESULTS_FILE}")
+    if not args.skip_viewer:
+        from viewer import build_viewer
+        out = build_viewer(cfg.results_path)
+        logging.getLogger("crafter_experiment").info("Viewer: %s", out)
 
 
 if __name__ == "__main__":
-    run()
+    main()

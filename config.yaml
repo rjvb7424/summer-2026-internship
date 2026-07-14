@@ -1,0 +1,155 @@
+# =============================================================================
+#  Crafter LLM Experiment - master configuration
+#
+#  This file is the ONLY thing you should need to touch for a new experiment.
+#  Change the world, the goal, the models, or the budgets here - not the code.
+# =============================================================================
+
+experiment:
+  name: gather_wood_10x10 # names the output folder: runs/<name>/
+  output_dir: runs # results.json, frames and plots live here
+  num_trials: 5 # trials run per model
+  max_turns: 100 # step budget per trial (turn = one LLM decision)
+  seed: 0 # base RNG seed
+  same_world_each_trial:
+    true # true  -> identical world every trial
+    # false -> world seed = base_seed + trial_index
+  save_frames: true # write one PNG per turn (needed by viewer.py)
+
+# --- What counts as a success -------------------------------------------------
+#  Swap `target` to change the whole experiment. Any Crafter achievement works:
+#    collect_wood, collect_stone, collect_coal, collect_iron, collect_diamond,
+#    collect_drink, collect_sapling, eat_cow, eat_plant, place_table,
+#    place_stone, place_plant, place_furnace, make_wood_pickaxe,
+#    make_stone_pickaxe, make_iron_pickaxe, make_wood_sword, make_stone_sword,
+#    make_iron_sword, defeat_zombie, defeat_skeleton, wake_up
+objective:
+  type: achievement # 'achievement' | 'inventory'
+  target: collect_wood # achievement name (for type: achievement)
+  item: wood # item name          (for type: inventory)
+  amount: 1 # required count      (for type: inventory)
+
+# --- The world ----------------------------------------------------------------
+world:
+  size: [10, 10] # [width, height] - make it as big/small as you like
+  base_terrain: grass # material every tile starts as
+  player_start: null # null = centre of the map, or [x, y]
+  static: true # true disables dynamic zombie/cow (de)spawning
+  freeze_daylight: true # true = permanent daytime (no night, no dark)
+
+  # Give the player starting items. Handy when the goal needs a tool, e.g. to
+  # test `make_stone_pickaxe` give: {wood_pickaxe: 1, wood: 2, stone: 1}
+  inventory: {}
+
+  # Feature placement. Every block is optional.
+  #   positions: explicit [x, y] tiles (full control)
+  #   count:     scatter N of them on random free tiles (reproducible via seed)
+  #   rect:      [x, y, w, h] filled rectangle (water only, for ponds)
+  features:
+    trees:
+      positions: [[2, 2], [7, 3], [4, 7]]
+      count: 0
+    water:
+      positions: []
+      rect: [6, 6, 3, 3]
+      count: 0
+    stone:
+      positions: []
+      count: 0
+    coal:
+      positions: []
+      count: 0
+    iron:
+      positions: []
+      count: 0
+    sand:
+      positions: []
+      count: 0
+
+  entities:
+    cow:
+      positions: [[3, 5]]
+      count: 0
+    zombie:
+      positions: []
+      count: 0
+    skeleton:
+      positions: []
+      count: 0
+
+# --- The prompt sent to the model --------------------------------------------
+#  Placeholders you can use in the templates below:
+#    {objective} {map} {legend} {inventory} {achievements}
+#    {actions} {position} {facing}
+prompt:
+  include_legend: true
+  include_inventory: true
+  include_achievements: true
+  include_action_list: true
+  system: |
+    You are an agent playing Crafter, a 2D survival game played on a grid.
+    Each turn you see a top-down map and must choose ONE action to progress
+    toward the goal. You act on the tile directly in front of you (the tile in
+    your FACING direction), so to interact with something you must be adjacent
+    to it and facing it, then use the 'do' action.
+    Reply with one short line of reasoning, then a final line in exactly this
+    format:
+    ACTION: <action_name>
+  user: |
+    GOAL: {objective}
+
+    MAP (top-down; row = y increases downward, column = x increases rightward):
+    {map}
+
+    LEGEND:
+    {legend}
+
+    YOUR POSITION: {position}   FACING: {facing}
+
+    INVENTORY:
+    {inventory}
+
+    ACHIEVEMENTS UNLOCKED: {achievements}
+
+    AVAILABLE ACTIONS:
+    {actions}
+
+    Decide your single next action. End your reply with:
+    ACTION: <action_name>
+
+# --- How to read an action out of the model's raw text -----------------------
+actions:
+  strategy: keyword # 'keyword' -> find "ACTION: x", else any action word
+  fallback: noop # action used when nothing parses
+
+# --- Models to evaluate -------------------------------------------------------
+#  backend: 'huggingface' (local transformers) or 'mock' (no download).
+#  Models run one at a time and are unloaded before the next, so a heavy model
+#  failing to load never blocks the others.
+models:
+  - name: microsoft/Phi-4-mini-instruct
+    backend: huggingface
+    max_new_tokens: 48
+    temperature: 0.7
+
+  - name: Qwen/Qwen3-4B-Instruct-2507
+    backend: huggingface
+    max_new_tokens: 48
+    temperature: 0.7
+
+  - name: heuristic-baseline
+    backend: mock
+    policy: heuristic
+
+  # A zero-download baseline that walks toward the goal tile. Great for
+  # checking the whole pipeline and as a non-LLM reference point.
+  - name: heuristic-baseline
+    backend: mock
+    policy: heuristic # 'heuristic' | 'random' | 'fixed'
+    fixed_action: noop # only used when policy: fixed
+
+
+  # - name: microsoft/Phi-4-mini-instruct
+  #   backend: huggingface
+  #   max_new_tokens: 256
+  #   temperature: 0.7

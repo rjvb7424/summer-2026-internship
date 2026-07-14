@@ -1,9 +1,16 @@
-crafter
-pygame
+# Core environment
+crafter>=1.8.0
 numpy
 Pillow
+ruamel.yaml
 imageio
+opensimplex
+
+# Plots
+matplotlib
+
+# Local HuggingFace models (only needed for backend: huggingface)
+# On Apple Silicon these give you the MPS backend automatically.
 torch
 transformers
 accelerate
-safetensors
