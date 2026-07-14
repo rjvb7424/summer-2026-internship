@@ -1,2 +1,0 @@
-model_version,trials,successes,success_rate_percent,avg_turns_all_trials,avg_turns_successful_trials,recognised_move_rate_percent,valid_move_rate_percent,avg_elapsed_seconds,avg_total_tokens,avg_output_tokens
-microsoft/phi-2,15,0,0.0,55.73,,2.75,2.03,230.83,75908.93,16.8
