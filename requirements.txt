@@ -1,0 +1,4 @@
+crafter[gui]
+pygame
+Pillow
+numpy
