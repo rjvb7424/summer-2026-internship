@@ -1,27 +1,18 @@
-"""Base agent: shared prompt building, history, and action extraction.
-
-Providers subclass this and implement _generate(user_text) -> str.
-"""
-
 import re
 
 import config
-from crafter_env import ACTION_NAMES
+import crafter
 
-# ============================================================
-# Prompt
-# ============================================================
+# Constants
+ACTION_NAMES = crafter.constants.actions
+ACHIEVEMENTS = crafter.constants.achievements
+
 SYSTEM_PROMPT = (
-    "You are playing Crafter, a 2D survival game on a grid.\n"
-    "Valid actions: " + ", ".join(ACTION_NAMES) + ".\n"
-    "Rules:\n"
-    "- 'do' interacts with the tile you face: chop tree (wood), mine stone, "
-    "drink water, attack, eat cow.\n"
-    "- Moving toward something faces you at it; you must be adjacent to use 'do'.\n"
-    "- Crafting needs a table nearby (place_table costs wood). Iron tools also "
-    "need a furnace and coal.\n"
-    "- Keep food, drink and energy up: eat, drink, sleep before they hit 0.\n"
-    "Reply with exactly one action name and nothing else."
+    "You are in a 2D survival game. Your objective is to survive as long as possible, "
+    "while trying to complete as many achievements as you can.\n"
+    "The available achievements are: " + ", ".join(ACHIEVEMENTS) + ".\n"
+    "The available actions are: " + ", ".join(ACTION_NAMES) + ".\n"
+    "You will be given your current local e"
 )
 
 # Longest names first so 'move_left' is matched before 'do', etc.

@@ -1,139 +1,181 @@
-"""Entry point: runs every model for TRIALS_PER_MODEL trials, then analysis.
-
-Usage: python main.py
-Safe to interrupt; rerunning resumes from the last completed trial.
-"""
-
+import json
 import os
-import subprocess
-import sys
-import time
+import re
+from functools import partial
+# Internal imports
+import analyze_results
+import huggingface
+from crafter_test import CrafterTest
 
-import config
+# Experiment configuration constants.
+NUM_TRIALS = 1
+MAX_STEPS = 1
+BASE_SEED = 20260708
+RESULTS_FILE = "results.json"
+RECORD_DIRECTORY = "recordings"
 
-# Must be set before torch initialises the MPS allocator (hf_agent imports torch).
-os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = config.MPS_HIGH_WATERMARK_RATIO
-os.environ["PYTORCH_MPS_LOW_WATERMARK_RATIO"] = config.MPS_LOW_WATERMARK_RATIO
+# Toggle experiment features.
+SHOW_SIMULATION = True
+RECORD_VIDEO = True
+SAVE_PROMPTS = False
+RUN_ANALYSIS = True
 
-from crafter_env import CrafterSession
-from recorder import Recorder
-from results_store import ResultsStore
+# Toggle which AI providers to run in the experiment.
+RUN_GEMINI = False
+RUN_GPT = False
+RUN_HUGGINGFACE = True
 
+# AI models to use for the Crafter experiment.
+GEMINI_MODELS = [
+    "gemini-3.5-flash",
+    "gemini-3.1-flash-lite",
+    "gemini-3.1-pro-preview",
+    "gemini-3-flash-preview",
+    "gemini-2.5-flash",
+]
+GPT_MODELS = [
+    "o3-2025-04-16",
+    "gpt-5-nano-2025-08-07",
+    "gpt-5.5-2026-04-23",
+    "gpt-5.4-mini-2026-03-17",
+]
+HUGGINGFACE_MODELS = [
+    "Qwen/Qwen3-4B-Instruct-2507",
+    "deepseek-ai/DeepSeek-V2-Lite-Chat",
+    "deepseek-ai/deepseek-llm-7b-chat",
+    "meta-llama/Llama-3.2-3B-Instruct",
+    "microsoft/Phi-4-mini-instruct",
+]
 
-# ============================================================
-# Agent factory (lazy imports: only load the SDKs you use)
-# ============================================================
-def create_agent(provider, model_name):
-    if provider == "huggingface":
-        from hf_agent import HuggingFaceAgent
-        return HuggingFaceAgent(model_name)
-    if provider == "openai":
-        from openai_agent import OpenAIAgent
-        return OpenAIAgent(model_name)
-    if provider == "gemini":
-        from gemini_agent import GeminiAgent
-        return GeminiAgent(model_name)
-    raise ValueError(f"unknown provider: {provider}")
+def load_existing_results():
+    """Load existing results if present, otherwise return an empty list."""
+    if os.path.exists(RESULTS_FILE):
+        with open(RESULTS_FILE, "r", encoding="utf-8") as file:
+            return json.load(file)
+    return []
 
+def save_results(results):
+    """Save all experiment results after each episode."""
+    with open(RESULTS_FILE, "w", encoding="utf-8") as file:
+        json.dump(results, file, indent=2)
 
-# ============================================================
-# Single trial
-# ============================================================
-def run_trial(agent, trial_index, viewer):
-    """Run one episode and return its result record."""
-    seed = config.BASE_SEED + trial_index
-    session = CrafterSession(seed=seed)
-    observation = session.reset()
-    agent.reset_history()
-    recorder = Recorder(agent.model_name, trial_index) if config.RECORD_VIDEO else None
+# Some models may have characters that are not safe for directory names.
+# Therefore we sanitize the model identifier to create a safe directory name.
+# This is used in the "recordings" directory to store video recordings for each model and trial.
+def safe_directory_name(value):
+    """Convert a model identifier into a safe directory name."""
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", value)
 
-    total_reward = 0.0
-    invalid_actions = 0
-    actions = []
-    start_time = time.time()
-    step = 0
-    try:
-        for step in range(1, config.MAX_STEPS_PER_TRIAL + 1):
-            action, _, valid = agent.choose_action(observation)
-            invalid_actions += not valid
-            observation, reward, done, _ = session.step(action)
-            agent.record_outcome(action, reward)
-            total_reward += reward
-            actions.append(action)
-            if recorder:
-                recorder.add_frame(session.render_frame(config.VIDEO_SIZE))
-            if viewer:
-                viewer.update(
-                    session.render_frame(config.VIEWER_SIZE),
-                    [
-                        f"model: {agent.model_name} ({agent.provider})",
-                        f"trial: {trial_index + 1}/{config.TRIALS_PER_MODEL}   step: {step}/{config.MAX_STEPS_PER_TRIAL}",
-                        f"action: {action}   reward: {total_reward:+.1f}",
-                        f"health: {session.last_info['inventory']['health']}/9",
-                    ],
-                )
-            if done:
-                break
-    finally:
-        if recorder:
-            recorder.close()
+def build_models_to_run():
+    """Build the enabled list of model and solver pairs."""
+    models_to_run = []
+    if RUN_HUGGINGFACE:
+        models_to_run += [
+            (model, huggingface.call_huggingface) for model in HUGGINGFACE_MODELS
+        ]
+    return models_to_run
 
-    achievements = session.achievements()
-    return {
-        "model": agent.model_name,
-        "provider": agent.provider,
-        "trial": trial_index,
-        "seed": seed,
-        "steps": step,
-        "died": step < config.MAX_STEPS_PER_TRIAL,
-        "total_reward": round(total_reward, 2),
-        "achievements": achievements,
-        "achievements_unlocked": sum(count > 0 for count in achievements.values()),
-        "invalid_actions": invalid_actions,
-        "actions": actions,
-        "duration_sec": round(time.time() - start_time, 1),
-    }
-
-
-# ============================================================
-# Experiment loop
-# ============================================================
 def main():
-    store = ResultsStore()
-    viewer = None
-    if config.SHOW_VIEWER:
-        from viewer import Viewer
-        viewer = Viewer()
+    models_to_run = build_models_to_run()
+    # Check if any providers are enabled; if not, print a message and exit.
+    if not models_to_run:
+        print("No providers enabled!")
+        return
 
-    try:
-        for provider, model_name in config.MODELS:
-            completed = store.completed_trials(model_name)
-            if completed >= config.TRIALS_PER_MODEL:
-                continue
+    results = load_existing_results()
+
+    # For each model, run the specified number of trials, skipping any that have already been completed.
+    for model, solver_fn in models_to_run:
+        model_results = [
+            result
+            for result in results
+            if result.get("model_version") == model
+        ]
+        start_trial = len(model_results)
+
+        if start_trial >= NUM_TRIALS:
+            print(
+                f"\n=== {model}: already has {start_trial}/{NUM_TRIALS} "
+                "trials, skipping ==="
+            )
+            continue
+        print(f"\n=== Model: {model} ({start_trial}/{NUM_TRIALS} done) ===")
+        solver = partial(solver_fn, model=model)
+
+        # For each trial, run the Crafter test and record the results.
+        for trial_index in range(start_trial, NUM_TRIALS):
+            trial_number = trial_index + 1
+            seed = BASE_SEED + trial_index
+            print(f"\n=== {model} | Trial {trial_number}/{NUM_TRIALS} ===")
+
+            record_directory = None
+            if RECORD_VIDEO:
+                record_directory = os.path.join(
+                    RECORD_DIRECTORY,
+                    safe_directory_name(model),
+                    f"trial_{trial_number:03d}",
+                )
+
+            test = CrafterTest(
+                max_steps=MAX_STEPS,
+                seed=seed,
+                show_simulation=SHOW_SIMULATION,
+                record_directory=record_directory,
+                save_prompts=SAVE_PROMPTS,
+            )
+
             try:
-                agent = create_agent(provider, model_name)
+                result = test.run(
+                    solver=solver,
+                    model=model,
+                    trial=trial_number,
+                )
             except Exception as error:
-                print(f"[skip] {model_name}: {error}")
-                continue
-            try:
-                for trial_index in range(completed, config.TRIALS_PER_MODEL):
-                    record = run_trial(agent, trial_index, viewer)
-                    store.append_trial(model_name, record)
-            except KeyboardInterrupt:
-                raise
-            except Exception as error:
-                print(f"[abort model] {model_name}: {error}")
-                # completed trials are saved; the run moves to the next model
-            finally:
-                agent.unload()
-    except KeyboardInterrupt:
-        pass  # partial results are already on disk; rerun to resume
-    finally:
-        if viewer:
-            viewer.close()
+                result = {
+                    "model_version": model,
+                    "trial": trial_number,
+                    "seed": seed,
+                    "error": str(error),
+                    "solver_failed": True,
+                }
+                print(f"[{model}] Trial failed: {error}")
 
-    subprocess.run([sys.executable, "analyze_results.py"], check=False)
+            results.append(result)
+            save_results(results)
 
+            print(
+                f"Reward: {result.get('total_reward', 0):.1f} | "
+                f"Achievements: {result.get('num_achievements', 0)} | "
+                f"Steps: {result.get('episode_steps', 0)}"
+            )
+
+            if result.get("stopped_by_user"):
+                print("Simulation window closed. Stopping the experiment.")
+                if RUN_ANALYSIS:
+                    analyze_results.run()
+                return
+
+        completed = [
+            result
+            for result in results
+            if result.get("model_version") == model
+            and result.get("error") is None
+        ]
+        # If there are completed trials, calculate and print the average reward and achievements for the model.
+        if completed:
+            average_reward = sum(
+                result.get("total_reward", 0) for result in completed
+            ) / len(completed)
+            average_achievements = sum(
+                result.get("num_achievements", 0) for result in completed
+            ) / len(completed)
+            print(
+                f"\n{model} averages: reward={average_reward:.2f}, "
+                f"achievements={average_achievements:.2f}"
+            )
+    # If all trials for all models are completed, run the analysis if enabled.
+    if RUN_ANALYSIS:
+        analyze_results.run()
 
 if __name__ == "__main__":
     main()
