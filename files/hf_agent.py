@@ -1,8 +1,7 @@
-"""HuggingFace agent: loads a model, turns observations into Crafter actions."""
+"""HuggingFace agent: runs a local model, optimised for Apple Silicon (MPS)."""
 
 import gc
 import os
-import re
 
 os.environ.setdefault("PYTORCH_MPS_HIGH_WATERMARK_RATIO", "0.85")
 os.environ.setdefault("PYTORCH_MPS_LOW_WATERMARK_RATIO", "0.75")
@@ -12,33 +11,9 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 import config
-from crafter_env import ACTION_NAMES
-
-# ============================================================
-# Constants
-# ============================================================
-SYSTEM_PROMPT = (
-    "You are playing Crafter, a 2D survival game on a grid.\n"
-    "Valid actions: " + ", ".join(ACTION_NAMES) + ".\n"
-    "Rules:\n"
-    "- 'do' interacts with the tile you face: chop tree (wood), mine stone, "
-    "drink water, attack, eat cow.\n"
-    "- Moving toward something faces you at it; you must be adjacent to use 'do'.\n"
-    "- Crafting needs a table nearby (place_table costs wood). Iron tools also "
-    "need a furnace and coal.\n"
-    "- Keep food, drink and energy up: eat, drink, sleep before they hit 0.\n"
-    "Reply with exactly one action name and nothing else."
-)
-
-# Longest names first so 'move_left' is matched before 'do', etc.
-_ACTION_PATTERN = re.compile(
-    "|".join(rf"\b{re.escape(name)}\b" for name in sorted(ACTION_NAMES, key=len, reverse=True))
-)
+from base_agent import SYSTEM_PROMPT, BaseAgent
 
 
-# ============================================================
-# Device selection
-# ============================================================
 def _pick_device():
     """Best available device: MPS on Apple Silicon, else CUDA, else CPU."""
     if torch.backends.mps.is_available():
@@ -48,14 +23,13 @@ def _pick_device():
     return "cpu"
 
 
-# ============================================================
-# Agent
-# ============================================================
-class HuggingFaceAgent:
-    """Wraps one HuggingFace causal LM as a Crafter policy."""
+class HuggingFaceAgent(BaseAgent):
+    """Wraps one local HuggingFace causal LM as a Crafter policy."""
+
+    provider = "huggingface"
 
     def __init__(self, model_name):
-        self.model_name = model_name
+        super().__init__(model_name)
         self.device = _pick_device()
         dtype = getattr(torch, config.TORCH_DTYPE) if self.device != "cpu" else torch.float32
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -69,13 +43,11 @@ class HuggingFaceAgent:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         if self.device == "cpu":
             torch.set_num_threads(os.cpu_count())
-        self.history = []  # rolling [(action, outcome), ...]
 
-    # -------------------- policy --------------------
+    # -------------------- generation --------------------
 
-    def choose_action(self, observation_text):
-        """Return (action_name, raw_response, valid) for the observation."""
-        prompt = self._build_prompt(observation_text)
+    def _generate(self, user_text):
+        prompt = self._apply_template(user_text)
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
         with torch.inference_mode():
             output = self.model.generate(
@@ -86,31 +58,10 @@ class HuggingFaceAgent:
                 pad_token_id=self.tokenizer.pad_token_id,
             )
         generated = output[0][inputs["input_ids"].shape[1]:]
-        response = self.tokenizer.decode(generated, skip_special_tokens=True).strip()
-        match = _ACTION_PATTERN.search(response)
-        if match:
-            return match.group(0), response, True
-        return "noop", response, False
+        return self.tokenizer.decode(generated, skip_special_tokens=True).strip()
 
-    def record_outcome(self, action_name, reward):
-        """Append the last step to the rolling history shown in prompts."""
-        outcome = f"reward {reward:+.1f}" if reward else "no reward"
-        self.history.append((action_name, outcome))
-        self.history = self.history[-config.HISTORY_LENGTH:]
-
-    def reset_history(self):
-        self.history = []
-
-    # -------------------- prompt --------------------
-
-    def _build_prompt(self, observation_text):
+    def _apply_template(self, user_text):
         """Chat-templated prompt, with a plain-text fallback for base models."""
-        history = (
-            "Recent actions:\n"
-            + "\n".join(f"- {action} ({outcome})" for action, outcome in self.history)
-            if self.history else "Recent actions: none yet"
-        )
-        user_text = f"{observation_text}\n\n{history}\n\nNext action:"
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_text},

@@ -16,9 +16,24 @@ os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = config.MPS_HIGH_WATERMARK_RATIO
 os.environ["PYTORCH_MPS_LOW_WATERMARK_RATIO"] = config.MPS_LOW_WATERMARK_RATIO
 
 from crafter_env import CrafterSession
-from hf_agent import HuggingFaceAgent
 from recorder import Recorder
 from results_store import ResultsStore
+
+
+# ============================================================
+# Agent factory (lazy imports: only load the SDKs you use)
+# ============================================================
+def create_agent(provider, model_name):
+    if provider == "huggingface":
+        from hf_agent import HuggingFaceAgent
+        return HuggingFaceAgent(model_name)
+    if provider == "openai":
+        from openai_agent import OpenAIAgent
+        return OpenAIAgent(model_name)
+    if provider == "gemini":
+        from gemini_agent import GeminiAgent
+        return GeminiAgent(model_name)
+    raise ValueError(f"unknown provider: {provider}")
 
 
 # ============================================================
@@ -51,7 +66,7 @@ def run_trial(agent, trial_index, viewer):
                 viewer.update(
                     session.render_frame(config.VIEWER_SIZE),
                     [
-                        f"model: {agent.model_name}",
+                        f"model: {agent.model_name} ({agent.provider})",
                         f"trial: {trial_index + 1}/{config.TRIALS_PER_MODEL}   step: {step}/{config.MAX_STEPS_PER_TRIAL}",
                         f"action: {action}   reward: {total_reward:+.1f}",
                         f"health: {session.last_info['inventory']['health']}/9",
@@ -66,6 +81,7 @@ def run_trial(agent, trial_index, viewer):
     achievements = session.achievements()
     return {
         "model": agent.model_name,
+        "provider": agent.provider,
         "trial": trial_index,
         "seed": seed,
         "steps": step,
@@ -90,11 +106,11 @@ def main():
         viewer = Viewer()
 
     try:
-        for model_name in config.MODELS:
+        for provider, model_name in config.MODELS:
             completed = store.completed_trials(model_name)
             if completed >= config.TRIALS_PER_MODEL:
                 continue
-            agent = HuggingFaceAgent(model_name)
+            agent = create_agent(provider, model_name)
             try:
                 for trial_index in range(completed, config.TRIALS_PER_MODEL):
                     record = run_trial(agent, trial_index, viewer)

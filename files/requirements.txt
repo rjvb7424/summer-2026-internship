@@ -7,3 +7,5 @@ imageio
 imageio-ffmpeg
 matplotlib
 numpy
+openai
+google-genai

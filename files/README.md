@@ -11,6 +11,13 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## API keys (only for API providers)
+
+```bash
+export OPENAI_API_KEY=...    # for ("openai", ...) models
+export GEMINI_API_KEY=...    # for ("gemini", ...) models
+```
+
 ## Run
 
 ```bash
@@ -34,7 +41,10 @@ Outputs:
 | `config.py` | all experiment flags |
 | `main.py` | experiment loop |
 | `crafter_env.py` | Crafter wrapper + text observations |
-| `hf_agent.py` | HuggingFace model wrapper |
+| `base_agent.py` | shared prompt/history/action extraction |
+| `hf_agent.py` | local HuggingFace models (MPS) |
+| `openai_agent.py` | ChatGPT API models |
+| `gemini_agent.py` | Gemini API models |
 | `viewer.py` | live pygame window |
 | `recorder.py` | per-trial mp4 recording |
 | `results_store.py` | crash-safe JSON persistence |
