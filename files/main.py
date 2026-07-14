@@ -7,45 +7,23 @@ import analyze_results
 import huggingface
 from crafter_test import CrafterTest
 
-# Experiment configuration constants.
-NUM_TRIALS = 1
-MAX_STEPS = 1
-BASE_SEED = 20260708
-RESULTS_FILE = "results.json"
-RECORD_DIRECTORY = "recordings"
-
-# Toggle experiment features.
-SHOW_SIMULATION = True
-RECORD_VIDEO = True
-SAVE_PROMPTS = False
-RUN_ANALYSIS = True
-
-# Toggle which AI providers to run in the experiment.
-RUN_GEMINI = False
-RUN_GPT = False
-RUN_HUGGINGFACE = True
-
-# AI models to use for the Crafter experiment.
-GEMINI_MODELS = [
-    "gemini-3.5-flash",
-    "gemini-3.1-flash-lite",
-    "gemini-3.1-pro-preview",
-    "gemini-3-flash-preview",
-    "gemini-2.5-flash",
-]
-GPT_MODELS = [
-    "o3-2025-04-16",
-    "gpt-5-nano-2025-08-07",
-    "gpt-5.5-2026-04-23",
-    "gpt-5.4-mini-2026-03-17",
-]
-HUGGINGFACE_MODELS = [
-    "Qwen/Qwen3-4B-Instruct-2507",
-    "deepseek-ai/DeepSeek-V2-Lite-Chat",
-    "deepseek-ai/deepseek-llm-7b-chat",
-    "meta-llama/Llama-3.2-3B-Instruct",
-    "microsoft/Phi-4-mini-instruct",
-]
+from config import (
+    NUM_TRIALS,
+    MAX_STEPS,
+    BASE_SEED,
+    RESULTS_FILE,
+    RECORD_DIRECTORY,
+    SHOW_SIMULATION,
+    RECORD_VIDEO,
+    SAVE_PROMPTS,
+    RUN_ANALYSIS,
+    RUN_GEMINI,
+    RUN_GPT,
+    RUN_HUGGINGFACE,
+    GEMINI_MODELS,
+    GPT_MODELS,
+    HUGGINGFACE_MODELS,
+)
 
 def load_existing_results():
     """Load existing results if present, otherwise return an empty list."""
