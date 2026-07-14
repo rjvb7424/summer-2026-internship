@@ -1,69 +1,96 @@
 # ============================================================
-# WORLD CONFIGURATION
-# Edit this file only.
+# EXPERIMENT CONFIGURATION
+# Change this file to create new fixed-world experiments.
 # ============================================================
 
-WORLD_SIZE = 10
+# ----------------------------
+# Hugging Face model
+# ----------------------------
+
+MODEL_NAME = "Qwen/Qwen3-4B-Instruct-2507"
+
+# "auto" chooses MPS on Apple Silicon, CUDA when available, otherwise CPU.
+DEVICE = "auto"
+
+MAX_NEW_TOKENS = 24
+
+# Greedy generation is easier to compare across repeated trials.
+DO_SAMPLE = False
+TEMPERATURE = 0.0
+
+# ----------------------------
+# Experiment
+# ----------------------------
+
+GOAL_ACHIEVEMENT = "collect_wood"
+GOAL_DESCRIPTION = "Collect wood from one tree."
+
+NUM_TRIALS = 5
+MAX_TURNS = 20
+
+# Change the seed between trials while keeping the fixed map unchanged.
+# This mainly affects stochastic internal updates.
+BASE_SEED = 100
+
+# Save all model decisions and trial results here.
+RESULTS_FILE = "wood_results.json"
+
+# Show the world while the AI acts.
+VISUALIZE = True
+WINDOW_SIZE = 720
+
+# Pause after each AI action so the result is visible.
+TURN_DELAY_MS = 350
+
+# ----------------------------
+# Fixed Crafter world
+# ----------------------------
+
+WORLD_SIZE = 9
 VIEW_SIZE = 9
-WINDOW_SIZE = 900
-SEED = 1
-
-# False creates a blank world using BACKGROUND.
-# True keeps Crafter's normal procedural generation.
-RANDOM_WORLD = False
-
-# False disables Crafter's automatic mob spawning.
-NATURAL_MOBS = False
-
 BACKGROUND = "grass"
 
-# Exact player position.
-PLAYER = (5, 5)
+PLAYER_POSITION = (4, 4)
 
-# Action applied to the player on every turn.
-# The keyboard does not control the player.
-#
-# Examples:
-#   "noop"
-#   "move_left"
-#   "move_right"
-#   "move_up"
-#   "move_down"
-#   "do"
-#   "sleep"
-PLAYER_ACTION = "noop"
+# Direction the player initially faces:
+# "left", "right", "up", or "down"
+PLAYER_FACING = "up"
 
-# Maximum number of turns.
-# Use None for no limit.
-MAX_TURNS = 100
-
-# Exact single tiles.
-#
-# Format:
-#   (x, y): "tile"
+# Exact material positions.
+# The first tree is deliberately close to the player.
 TILES = {
-    (0, 0): "tree",
-    (8, 5): "tree",
-    (9, 5): "tree",
+    (4, 2): "tree",
+    (2, 3): "tree",
+    (7, 6): "tree",
+    (1, 7): "stone",
 }
 
-# Rectangular areas.
-#
-# Format:
-#   ("tile", x, y, width, height)
-RECTANGLES = [
-    ("water", 1, 3, 3, 4),
-]
+# Optional rectangles:
+# ("material", x, y, width, height)
+RECTANGLES = []
 
-# Exact mob positions.
-#
-# Available:
-#   "cow"
-#   "zombie"
-#   "skeleton"
-#
-# Format:
-#   ("mob", x, y)
-MOBS = [
-    ("cow", 7, 7),
+# This experiment contains no mobs.
+MOBS = []
+
+# Disable procedural generation and automatic spawning.
+RANDOM_WORLD = False
+NATURAL_MOBS = False
+
+# ----------------------------
+# Agent observation
+# ----------------------------
+
+# Include the complete map because this is a small fixed-world task.
+SHOW_FULL_MAP = True
+
+# Number of previous actions shown back to the model.
+HISTORY_LENGTH = 8
+
+VALID_ACTIONS = [
+    "move_left",
+    "move_right",
+    "move_up",
+    "move_down",
+    "do",
+    "noop",
 ]

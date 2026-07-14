@@ -1,4 +1,9 @@
-crafter[gui]
+crafter
 pygame
-Pillow
 numpy
+Pillow
+imageio
+torch
+transformers
+accelerate
+safetensors
