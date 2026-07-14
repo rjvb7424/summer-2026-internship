@@ -1,21 +1,19 @@
 import textwrap
 import pygame
-
-# Constants for the window size and layout.
-WINDOW_WIDTH = 1100
-WINDOW_HEIGHT = 720
-GAME_SIZE = 720
-PANEL_WIDTH = WINDOW_WIDTH - GAME_SIZE
-VIEWER_FPS = 12
+from config import (
+    WINDOW_WIDTH,
+    WINDOW_HEIGHT,
+    GAME_SIZE,
+    PANEL_WIDTH,
+    VIEWER_FPS,
+)
 
 
 class CrafterViewer:
-    """Display the current Crafter state while the AI chooses actions."""
-
-    def __init__(self, title="Crafter AI Experiment"):
+    def __init__(self, title="Crafter Experiment"):
         pygame.init()
         pygame.display.set_caption(title)
-
+        # Set up the Pygame window and clock
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 26)
@@ -44,8 +42,9 @@ class CrafterViewer:
         total_reward=0.0,
         achievements=None,
         response_preview=None,
+        prompt_preview=None,
     ):
-        """Render the game and experiment information in one responsive window."""
+        """Render the game state and control panel in the Pygame window."""
         if not self.process_events():
             return False
 
@@ -99,10 +98,27 @@ class CrafterViewer:
         achievement_text = ", ".join(unlocked) if unlocked else "None yet"
         y = self._draw_wrapped(achievement_text, GAME_SIZE + 20, y)
 
+        line_height = self.small_font.get_height() + 5
+
+        if prompt_preview:
+            y += 18
+            y = self._draw_text("Prompt", GAME_SIZE + 20, y, self.font)
+            prompt_lines = max(1, (WINDOW_HEIGHT - y - 20) // line_height // 2)
+            y = self._draw_wrapped(
+                prompt_preview, GAME_SIZE + 20, y, max_lines=prompt_lines
+            )
+
         if response_preview:
             y += 18
-            y = self._draw_text("Model response", GAME_SIZE + 20, y, self.font)
-            self._draw_wrapped(response_preview, GAME_SIZE + 20, y, max_lines=8)
+            y = self._draw_text("Raw model response", GAME_SIZE + 20, y, self.font)
+            remaining_lines = max(1, (WINDOW_HEIGHT - y - 20) // line_height)
+            self._draw_wrapped(
+                response_preview,
+                GAME_SIZE + 20,
+                y,
+                max_lines=remaining_lines,
+                from_end=True,
+            )
 
         pygame.display.flip()
         self.clock.tick(VIEWER_FPS)
@@ -117,11 +133,13 @@ class CrafterViewer:
         self.screen.blit(surface, (x, y))
         return y + surface.get_height() + 5
 
-    def _draw_wrapped(self, text, x, y, max_lines=None):
+    def _draw_wrapped(self, text, x, y, max_lines=None, from_end=False):
         width = max(20, (PANEL_WIDTH - 40) // 10)
-        lines = textwrap.wrap(str(text), width=width) or [""]
+        lines = []
+        for raw_line in str(text).splitlines() or [""]:
+            lines.extend(textwrap.wrap(raw_line, width=width) or [""])
         if max_lines is not None:
-            lines = lines[:max_lines]
+            lines = lines[-max_lines:] if from_end else lines[:max_lines]
 
         for line in lines:
             y = self._draw_text(line, x, y, self.small_font)

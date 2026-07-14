@@ -10,7 +10,7 @@ load_dotenv()
 # Initialize the Gemini client
 client = genai.Client()
 
-def call_gemini(prompt, model="gemini-3.5-flash", max_retries=3):
+def call_gemini(prompt, model="gemini-3.5-flash", system_prompt=None, max_retries=3):
     """Call Gemini once with the given prompt and model, retrying up to max_retries times if necessary."""
     # For each attempt, try to stream the response from Gemini.
     for attempt in range(1, max_retries + 1):
@@ -24,6 +24,7 @@ def call_gemini(prompt, model="gemini-3.5-flash", max_retries=3):
             for chunk in client.models.generate_content_stream(
                 model=model,
                 contents=prompt,
+                config=types.GenerateContentConfig(system_instruction=system_prompt),
             ):
                 # If the chunk contains text, append it to the partial_text variable.
                 if chunk.text:

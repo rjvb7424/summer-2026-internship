@@ -9,7 +9,7 @@ load_dotenv()
 # Initialize the OpenAI client
 client = OpenAI()
 
-def call_gpt(prompt, model="gpt-5.2", max_retries=3):
+def call_gpt(prompt, model="gpt-5.2", system_prompt=None, max_retries=3):
     """Call ChatGPT once with the given prompt and model, retrying up to max_retries times if necessary."""
     # For each attempt, try to stream the response from ChatGPT.
     for attempt in range(1, max_retries + 1):
@@ -22,7 +22,9 @@ def call_gpt(prompt, model="gpt-5.2", max_retries=3):
             print(f"[{model}] [Attempt {attempt}] Streaming request...")
             stream = client.chat.completions.create(
                 model=model,
-                messages=[{"role": "user", "content": prompt}],
+                messages=(
+                    [{"role": "system", "content": system_prompt}] if system_prompt else []
+                ) + [{"role": "user", "content": prompt}],
                 stream=True,
                 stream_options={"include_usage": True},
             )

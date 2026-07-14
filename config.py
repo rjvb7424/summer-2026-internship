@@ -41,11 +41,17 @@ GPT_MODELS = [
     "gpt-5.4-mini-2026-03-17",
 ]
 HUGGINGFACE_MODELS = [
-    "Qwen/Qwen3-4B-Instruct-2507",
-    "meta-llama/Llama-3.2-3B-Instruct",
     "microsoft/Phi-4-mini-instruct",
+    "Qwen/Qwen3-4B-Instruct-2507",
 ]
 
 # HuggingFace generation parameters.
 MAX_NEW_TOKENS = 1024
 MAX_MEMORY = {"mps": "10GiB", "cpu": "2GiB"}
+
+# Constants for the window size and layout.
+WINDOW_WIDTH = 1100
+WINDOW_HEIGHT = 720
+GAME_SIZE = 720
+PANEL_WIDTH = WINDOW_WIDTH - GAME_SIZE
+VIEWER_FPS = 12
