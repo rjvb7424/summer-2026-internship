@@ -1014,5 +1014,39 @@
       "move_right"
     ],
     "duration_sec": 124.2
+  },
+  {
+    "model_version": "Qwen/Qwen3-4B-Instruct-2507",
+    "trial": 6,
+    "seed": 20260713,
+    "steps": 48,
+    "total_reward": 1.0,
+    "invalid_actions": 0,
+    "achievements": {
+      "collect_coal": 0,
+      "collect_diamond": 0,
+      "collect_drink": 0,
+      "collect_iron": 0,
+      "collect_sapling": 3,
+      "collect_stone": 0,
+      "collect_wood": 0,
+      "defeat_skeleton": 0,
+      "defeat_zombie": 0,
+      "eat_cow": 0,
+      "eat_plant": 0,
+      "make_iron_pickaxe": 0,
+      "make_iron_sword": 0,
+      "make_stone_pickaxe": 0,
+      "make_stone_sword": 0,
+      "make_wood_pickaxe": 0,
+      "make_wood_sword": 0,
+      "place_furnace": 0,
+      "place_plant": 0,
+      "place_stone": 0,
+      "place_table": 0,
+      "wake_up": 0
+    },
+    "achievements_unlocked": 1,
+    "stopped_by_user": true
   }
 ]

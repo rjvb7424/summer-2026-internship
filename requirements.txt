@@ -9,3 +9,4 @@ matplotlib
 numpy
 openai
 google-genai
+python-dotenv

@@ -1,5 +1,9 @@
+import gc
 import time
+
+import torch
 from transformers import pipeline
+
 from config import MAX_MEMORY, MAX_NEW_TOKENS
 
 _PIPELINE_CACHE = {}
@@ -23,6 +27,13 @@ def get_pipeline(model):
         _PIPELINE_CACHE[model] = text_generation_pipeline
 
     return _PIPELINE_CACHE[model]
+
+def unload_models():
+    """Free cached pipelines and MPS memory before loading the next model."""
+    _PIPELINE_CACHE.clear()
+    gc.collect()
+    if torch.backends.mps.is_available():
+        torch.mps.empty_cache()
 
 def build_messages(prompt, system_prompt=None, history=None):
     """Build a chat message list from the prompt, optional system prompt, and history."""

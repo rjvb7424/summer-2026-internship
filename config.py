@@ -1,11 +1,19 @@
+import os
+
+# Cap MPS memory at 85% of unified memory so oversized models error instead of freezing.
+os.environ.setdefault("PYTORCH_MPS_HIGH_WATERMARK_RATIO", "0.85")
+os.environ.setdefault("PYTORCH_MPS_LOW_WATERMARK_RATIO", "0.75")
+
 # Experiment constants.
-NUM_TRIALS = 5
+NUM_TRIALS = 6
 MAX_STEPS = 500
 BASE_SEED = 20260708
 
 # File paths.
-RESULTS_FILE = "results.json"
-RECORD_DIRECTORY = "recordings"
+RESULTS_DIR = "results"
+GRAPHS_DIR = "results/graphs"
+RECORDINGS_DIR = "recordings"
+VIDEO_FPS = 12
 
 # Toggle experiment features.
 SHOW_SIMULATION = True
@@ -34,8 +42,6 @@ GPT_MODELS = [
 ]
 HUGGINGFACE_MODELS = [
     "Qwen/Qwen3-4B-Instruct-2507",
-    "deepseek-ai/DeepSeek-V2-Lite-Chat",
-    "deepseek-ai/deepseek-llm-7b-chat",
     "meta-llama/Llama-3.2-3B-Instruct",
     "microsoft/Phi-4-mini-instruct",
 ]
