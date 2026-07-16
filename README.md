@@ -126,6 +126,22 @@ trials already in `results.json`.
 
 ---
 
+## Watching it run live
+
+```
+python main.py --live            # runs + serves a real-time view
+```
+
+This starts a small local web server (default http://127.0.0.1:8000) and prints
+the URL. Open it in a browser and the page refreshes itself every turn while the
+run happens: current game state, the prompt, the model's raw response, the
+action taken, the think time, and a running solved-count. Pick a different port
+with `--port 8123`. When the run finishes the final state stays on screen until
+you press Ctrl-C.
+
+Use this to confirm an experiment is actually working. For a careful after-the-
+fact review, use the static replay below.
+
 ## Seeing what the model did
 
 ```

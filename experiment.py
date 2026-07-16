@@ -32,6 +32,7 @@ from pathlib import Path
 import observation as obs
 from actions import ActionParser
 from config import Config
+from live_viewer import DEFAULT_PORT, LiveViewer
 from models import build_model
 from prompt import PromptBuilder
 from success import ObjectiveChecker
@@ -45,7 +46,7 @@ TILE_PIXELS = 24  # size of each map tile in the saved PNG frames
 class ExperimentRunner:
     """Runs every model over every trial and writes the results."""
 
-    def __init__(self, cfg: Config):
+    def __init__(self, cfg: Config, live: bool = False, live_port: int = DEFAULT_PORT):
         self.cfg = cfg
         self.checker = ObjectiveChecker(cfg.objective)
         self.parser = ActionParser(cfg.actions.strategy, cfg.actions.fallback)
@@ -54,6 +55,16 @@ class ExperimentRunner:
         self.renderer = obs.ImageRenderer(self.env.textures, TILE_PIXELS)
         self.results = self._load_or_init_results()
 
+        # Optional real-time browser view, updated once per turn during the run.
+        self.live: LiveViewer | None = None
+        if live:
+            self.live = LiveViewer(
+                self.cfg.run_dir, self.cfg.experiment.name, self.checker.label,
+                port=live_port,
+            )
+            self.cfg.run_dir.mkdir(parents=True, exist_ok=True)
+            self.live.start()
+
     # =========================================================================
     #  Top-level loop
     # =========================================================================
@@ -61,6 +72,8 @@ class ExperimentRunner:
         self.cfg.run_dir.mkdir(parents=True, exist_ok=True)
         for spec in self.cfg.models:
             self._run_model(spec)
+        if self.live:
+            self.live.set_complete()
         LOG.info("Done. Results at %s", self.cfg.results_path)
         return self.results
 
@@ -84,11 +97,13 @@ class ExperimentRunner:
             self._save()
             return
 
+        successes = sum(1 for t in record["trials"] if t["success"])
         try:
             for trial in range(done, total):
                 LOG.info("[%s] trial %d/%d ...", spec.name, trial + 1, total)
-                result = self._run_trial(spec, model, trial)
+                result = self._run_trial(spec, model, trial, successes, trial)
                 record["trials"].append(result)
+                successes += int(result["success"])
                 self._save()  # crash-safe: persist after every trial
                 LOG.info(
                     "[%s] trial %d -> %s (%d turns)",
@@ -102,7 +117,10 @@ class ExperimentRunner:
     # =========================================================================
     #  One trial
     # =========================================================================
-    def _run_trial(self, spec, model, trial: int) -> dict:
+    def _run_trial(
+        self, spec, model, trial: int,
+        prior_successes: int = 0, prior_trials: int = 0,
+    ) -> dict:
         world_seed = self._world_seed(trial)
         self.env.set_world_seed(world_seed)
         self.env.reset()
@@ -148,6 +166,31 @@ class ExperimentRunner:
                 "done": bool(done),
                 "success": success,
             })
+
+            if self.live:
+                self.live.update({
+                    "model": spec.name,
+                    "backend": spec.backend,
+                    "trial": trial + 1,
+                    "num_trials": self.cfg.experiment.num_trials,
+                    "turn": turn + 1,
+                    "max_turns": self.cfg.experiment.max_turns,
+                    "action": parsed.name,
+                    "parse_ok": parsed.ok,
+                    "think_seconds": round(think_seconds, 3),
+                    "facing": pre_facing,
+                    "map_text": map_text,
+                    "frame": frame_rel,
+                    "prompt": user_prompt,
+                    "raw_response": raw_text,
+                    "inventory": {k: int(v) for k, v in info["inventory"].items() if v > 0},
+                    "achievements": sorted(
+                        k for k, v in info["achievements"].items() if v > 0
+                    ),
+                    "success": success,
+                    "successes": prior_successes + int(success),
+                    "trials_done": prior_trials + 1,
+                })
 
             if success:
                 success_turn = turn
