@@ -199,7 +199,7 @@ class ExperimentRunner:
                 break
 
         return {
-            "trial": trial,
+            "trial": trial + 1,
             "world_seed": world_seed,
             "success": success,
             "success_turn": success_turn,
@@ -227,12 +227,40 @@ class ExperimentRunner:
         self.renderer.save(self.env.world, self.env.player, self.cfg.run_dir / rel)
         return str(rel)
 
+    def _config_fingerprint(self) -> dict:
+        """The settings that make trials comparable. If any of these change, old
+        trials in results.json are no longer valid to merge with new ones."""
+        return {
+            "objective": {
+                "type": self.cfg.objective.type,
+                "target": self.cfg.objective.target,
+                "item": self.cfg.objective.item,
+                "amount": self.cfg.objective.amount,
+            },
+            "world_size": list(self.cfg.world.size),
+            "max_turns": self.cfg.experiment.max_turns,
+        }
+
     def _load_or_init_results(self) -> dict:
+        fingerprint = self._config_fingerprint()
         if self.cfg.results_path.exists():
-            LOG.info("Found existing results - will resume.")
-            return json.loads(self.cfg.results_path.read_text())
+            existing = json.loads(self.cfg.results_path.read_text())
+            old_fp = existing.get("config_fingerprint")
+            if old_fp is not None and old_fp != fingerprint:
+                raise SystemExit(
+                    f"\n{self.cfg.results_path} was produced with a DIFFERENT "
+                    f"configuration (objective, world size or max_turns changed).\n"
+                    f"Merging old and new trials would give meaningless graphs.\n"
+                    f"Fix: either rename 'experiment.name' in your config, or delete "
+                    f"the folder  {self.cfg.run_dir}  and run again.\n"
+                    f"  old: {old_fp}\n  new: {fingerprint}\n"
+                )
+            LOG.info("Found existing results - resuming (config matches).")
+            existing.setdefault("config_fingerprint", fingerprint)
+            return existing
         return {
             "experiment": self.cfg.experiment.name,
+            "config_fingerprint": fingerprint,
             "objective": {
                 "type": self.cfg.objective.type,
                 "target": self.cfg.objective.target,

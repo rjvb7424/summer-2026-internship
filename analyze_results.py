@@ -34,6 +34,7 @@ BAR_COLOR = "#4c72b0"
 OK_COLOR = "#2f9e6f"
 FAIL_COLOR = "#c44e52"
 GRID_BG = "#e9e6df"
+NOT_RUN_COLOR = "#c9ccd6"  # model that errored or has zero recorded trials
 
 
 # =============================================================================
@@ -72,10 +73,17 @@ def summarise(results: dict) -> list[dict]:
 def plot_success_rate(rows, out: Path) -> None:
     names = [r["name"] for r in rows]
     values = [100 * r["success_rate"] for r in rows]
+    not_run = [bool(r["error"]) or r["n_trials"] == 0 for r in rows]
+    colors = [NOT_RUN_COLOR if nr else BAR_COLOR for nr in not_run]
     fig, ax = plt.subplots(figsize=(max(6, 1.6 * len(names)), 4.5))
-    ax.bar(names, values, color=BAR_COLOR)
-    for i, v in enumerate(values):
-        ax.text(i, v + 1, f"{v:.0f}%", ha="center", va="bottom", fontsize=9)
+    ax.bar(names, values, color=colors)
+    for i, r in enumerate(rows):
+        if not_run[i]:
+            ax.text(i, 2, "error" if r["error"] else "not run",
+                    ha="center", va="bottom", fontsize=9, color="#555")
+        else:
+            ax.text(i, values[i] + 1, f"{values[i]:.0f}%",
+                    ha="center", va="bottom", fontsize=9)
     ax.set_ylabel("Success rate (%)")
     ax.set_ylim(0, 105)
     ax.set_title("Objective success rate by model")

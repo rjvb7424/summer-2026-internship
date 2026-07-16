@@ -249,7 +249,7 @@ function initHeader(){
 function buildTrials(){
   const ts = $("trialSel");
   const trials = curModel().trials;
-  ts.innerHTML = trials.map((t,i)=>`<option value="${i}">Trial ${t.trial+1} \u2014 ${t.success?"solved":"failed"}</option>`).join("")
+  ts.innerHTML = trials.map((t,i)=>`<option value="${i}">Trial ${t.trial} \u2014 ${t.success?"solved":"failed"}</option>`).join("")
     || `<option>no trials</option>`;
   ts.onchange = e => { ti = +e.target.value; k = 0; render(); };
 }
