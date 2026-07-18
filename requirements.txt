@@ -9,8 +9,15 @@ opensimplex
 # Plots
 matplotlib
 
-# Local HuggingFace models (only needed for backend: huggingface)
+# Config / secrets
+python-dotenv
+
+# Local HuggingFace models (backend: huggingface)
 # On Apple Silicon these give you the MPS backend automatically.
 torch
 transformers
 accelerate
+
+# Hosted API models
+openai            # backend: openai  (ChatGPT: gpt-4o-mini, gpt-4o, ...)
+google-genai      # backend: gemini  (gemini-2.5-flash, ...)

@@ -12,6 +12,8 @@ from config import ModelSpec
 from models.base import LanguageModel
 from models.mock import MockModel, GOAL_SYMBOL_BY_TARGET
 from models.huggingface_local import HuggingFaceModel
+from models.openai_api import OpenAIModel
+from models.gemini_api import GeminiModel
 
 
 def build_model(spec: ModelSpec, objective_target: str | None = None) -> LanguageModel:
@@ -35,6 +37,25 @@ def build_model(spec: ModelSpec, objective_target: str | None = None) -> Languag
             temperature=float(opts.get("temperature", 0.7)),
             dtype=opts.get("dtype", "auto"),
             device=opts.get("device", "auto"),
+        )
+
+    if backend in ("openai", "chatgpt", "gpt"):
+        return OpenAIModel(
+            name=spec.name,
+            model=opts.get("model"),
+            max_tokens=int(opts.get("max_tokens", opts.get("max_new_tokens", 256))),
+            temperature=float(opts.get("temperature", 0.7)),
+            api_key_env=opts.get("api_key_env", "OPENAI_API_KEY"),
+            base_url=opts.get("base_url"),
+        )
+
+    if backend in ("gemini", "google"):
+        return GeminiModel(
+            name=spec.name,
+            model=opts.get("model"),
+            max_tokens=int(opts.get("max_tokens", opts.get("max_new_tokens", 256))),
+            temperature=float(opts.get("temperature", 0.7)),
+            api_key_env=opts.get("api_key_env", "GEMINI_API_KEY"),
         )
 
     raise ValueError(f"Unknown model backend '{spec.backend}' for '{spec.name}'.")

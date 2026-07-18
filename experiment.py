@@ -46,7 +46,10 @@ TILE_PIXELS = 24  # size of each map tile in the saved PNG frames
 class ExperimentRunner:
     """Runs every model over every trial and writes the results."""
 
-    def __init__(self, cfg: Config, live: bool = False, live_port: int = DEFAULT_PORT):
+    def __init__(
+        self, cfg: Config, live: bool = False,
+        live_port: int = DEFAULT_PORT, open_browser: bool = True,
+    ):
         self.cfg = cfg
         self.checker = ObjectiveChecker(cfg.objective)
         self.parser = ActionParser(cfg.actions.strategy, cfg.actions.fallback)
@@ -63,7 +66,7 @@ class ExperimentRunner:
                 port=live_port,
             )
             self.cfg.run_dir.mkdir(parents=True, exist_ok=True)
-            self.live.start()
+            self.live.start(open_browser=open_browser)
 
     # =========================================================================
     #  Top-level loop

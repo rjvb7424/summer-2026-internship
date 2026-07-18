@@ -26,6 +26,7 @@ import json
 import logging
 import threading
 import time
+import webbrowser
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -65,8 +66,12 @@ class LiveViewer:
     # =========================================================================
     #  Lifecycle
     # =========================================================================
-    def start(self) -> str:
-        """Bind the server and serve in a daemon thread. Returns the URL."""
+    def start(self, open_browser: bool = True) -> str:
+        """Bind the server, serve in a daemon thread, and open a browser tab.
+
+        Returns the URL. ``open_browser=False`` skips the auto-open (e.g. on a
+        headless machine); the URL is always logged either way.
+        """
         self._run_dir.mkdir(parents=True, exist_ok=True)
         handler = partial(_Handler, self, directory=str(self._run_dir))
 
@@ -75,7 +80,16 @@ class LiveViewer:
         self._thread.start()
 
         url = f"http://{self._host}:{port}"
-        LOG.info("Live view running at %s  (open it in a browser)", url)
+        LOG.info("=" * 60)
+        LOG.info("LIVE VIEW: open %s in your browser", url)
+        LOG.info("=" * 60)
+        if open_browser:
+            # Open a tab once the server thread is up. Non-fatal if it fails
+            # (headless box, no default browser) - the URL is logged above.
+            try:
+                threading.Timer(0.6, webbrowser.open, args=(url,)).start()
+            except Exception:  # pragma: no cover - environment dependent
+                pass
         return url
 
     def _bind(self, handler) -> int:
