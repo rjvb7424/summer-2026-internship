@@ -23,13 +23,18 @@ Design choices that match how you like to run these:
 from __future__ import annotations
 
 import datetime as dt
+import io
 import json
 import logging
 import os
 import tempfile
 from pathlib import Path
 
+import numpy as np
+from PIL import Image
+
 import observation as obs
+import videos
 from actions import ActionParser
 from config import Config
 from live_viewer import DEFAULT_PORT, LiveViewer
@@ -101,13 +106,17 @@ class ExperimentRunner:
             return
 
         successes = sum(1 for t in record["trials"] if t["success"])
+        video_trials: list[tuple[str, list]] = []  # (label, frames) per trial
         try:
             for trial in range(done, total):
                 LOG.info("[%s] trial %d/%d ...", spec.name, trial + 1, total)
-                result = self._run_trial(spec, model, trial, successes, trial)
+                result, frames = self._run_trial(spec, model, trial, successes, trial)
                 record["trials"].append(result)
                 successes += int(result["success"])
                 self._save()  # crash-safe: persist after every trial
+                if frames:
+                    label = f"trial {trial + 1} - {'solved' if result['success'] else 'failed'}"
+                    video_trials.append((label, frames))
                 LOG.info(
                     "[%s] trial %d -> %s (%d turns)",
                     spec.name, trial + 1,
@@ -117,19 +126,40 @@ class ExperimentRunner:
         finally:
             model.unload()
 
+        self._write_video(spec, video_trials)
+
+    def _write_video(self, spec, video_trials) -> None:
+        """Stitch a model's captured frames into one MP4 (best-effort)."""
+        if not self.cfg.experiment.record_video or not video_trials:
+            return
+        out = self.cfg.videos_dir / f"{spec.slug}.mp4"
+        try:
+            path = videos.build_model_video(
+                spec.name, video_trials, out, fps=self.cfg.experiment.video_fps
+            )
+            if path:
+                LOG.info("[%s] video: %s", spec.name, path)
+        except Exception as exc:  # missing ffmpeg plugin, etc.
+            LOG.error(
+                "[%s] could not write video (%s). "
+                "Install it with: pip install imageio-ffmpeg", spec.name, exc
+            )
+
     # =========================================================================
     #  One trial
     # =========================================================================
     def _run_trial(
         self, spec, model, trial: int,
         prior_successes: int = 0, prior_trials: int = 0,
-    ) -> dict:
+    ) -> tuple[dict, list]:
         world_seed = self._world_seed(trial)
         self.env.set_world_seed(world_seed)
         self.env.reset()
 
         system_prompt, _ = self.prompt_builder.build(self.env)
         turns: list[dict] = []
+        trial_frames: list = []
+        need_frames = self.live is not None or self.cfg.experiment.record_video
         success = False
         success_turn = None
 
@@ -139,7 +169,17 @@ class ExperimentRunner:
             pre_pos = [int(v) for v in self.env.player.pos]
             pre_facing = obs.describe_facing(self.env.player)
             map_text = obs.render_text_map(self.env.world, self.env.player)
-            frame_rel = self._save_frame(spec, trial, turn)
+
+            # Frame is kept in memory (for the live view and the end-of-run
+            # video); no per-turn PNG is written to disk.
+            frame_url = None
+            if need_frames:
+                frame_arr = self.renderer.render_array(self.env.world, self.env.player)
+                if self.cfg.experiment.record_video:
+                    trial_frames.append(frame_arr)
+                if self.live is not None:
+                    self.live.set_frame(self._png_bytes(frame_arr))
+                    frame_url = "frame.png"
 
             # Decision.
             raw_text, think_seconds = model.generate(system_prompt, user_prompt)
@@ -154,7 +194,7 @@ class ExperimentRunner:
                 "player_pos": pre_pos,
                 "facing": pre_facing,
                 "map_text": map_text,
-                "frame": frame_rel,
+                "frame": None,
                 "prompt": user_prompt,
                 "raw_response": raw_text,
                 "parsed_action": parsed.name,
@@ -183,7 +223,7 @@ class ExperimentRunner:
                     "think_seconds": round(think_seconds, 3),
                     "facing": pre_facing,
                     "map_text": map_text,
-                    "frame": frame_rel,
+                    "frame": frame_url,
                     "prompt": user_prompt,
                     "raw_response": raw_text,
                     "inventory": {k: int(v) for k, v in info["inventory"].items() if v > 0},
@@ -214,7 +254,7 @@ class ExperimentRunner:
                 k for k, v in self.env.player.achievements.items() if v > 0
             ),
             "turns": turns,
-        }
+        }, trial_frames
 
     # =========================================================================
     #  Helpers
@@ -223,12 +263,11 @@ class ExperimentRunner:
         base = self.cfg.experiment.seed
         return base if self.cfg.experiment.same_world_each_trial else base + trial
 
-    def _save_frame(self, spec, trial: int, turn: int) -> str | None:
-        if not self.cfg.experiment.save_frames:
-            return None
-        rel = Path("frames") / spec.slug / f"trial_{trial}" / f"turn_{turn}.png"
-        self.renderer.save(self.env.world, self.env.player, self.cfg.run_dir / rel)
-        return str(rel)
+    def _png_bytes(self, frame_arr: np.ndarray) -> bytes:
+        """Encode a frame array to PNG bytes for the live view (no disk)."""
+        buf = io.BytesIO()
+        Image.fromarray(frame_arr).save(buf, format="PNG")
+        return buf.getvalue()
 
     def _config_fingerprint(self) -> dict:
         """The settings that make trials comparable. If any of these change, old

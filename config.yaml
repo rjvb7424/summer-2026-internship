@@ -13,7 +13,8 @@ experiment:
   seed: 0                     # base RNG seed
   same_world_each_trial: true # true  -> identical world every trial
                               # false -> world seed = base_seed + trial_index
-  save_frames: true           # write one PNG per turn (needed by viewer.py)
+  record_video: true          # at the end, save ONE mp4 per model (not screenshots)
+  video_fps: 4                # playback speed of that video
 
 # --- What counts as a success -------------------------------------------------
 #  Swap `target` to change the whole experiment. Any Crafter achievement works:

@@ -14,7 +14,7 @@ Outputs land in `runs/<experiment_name>/`:
 
 ```
 results.json          every turn of every trial (saved after each trial)
-frames/               top-down PNG of the world at each turn
+videos/               ONE mp4 per model - the full run, start to finish
 plots/                success_rate, turns_to_success, think_time, success_matrix
 viewer.html           interactive replay: state + prompt + response + timing
 ```
@@ -37,7 +37,7 @@ numpy + Pillow. On Apple Silicon, `torch` gives you the MPS device automatically
 
 Each turn the harness:
 
-1. Renders the world to a text map (and a PNG frame).
+1. Renders the world to a text map (and an in-memory frame for the video).
 2. Fills your prompt template with the map, legend, inventory, achievements,
    position and facing.
 3. Sends it to the model and times the response.
@@ -126,6 +126,23 @@ trials already in `results.json`.
 
 ---
 
+## The video
+
+At the end of a run, each model's turns are stitched into a single MP4 at
+`runs/<name>/videos/<model>.mp4` - one continuous video of the whole run, with a
+title card before each trial. No per-turn screenshots are written to disk.
+
+Turn it off or change the speed in the config:
+
+```yaml
+experiment:
+  record_video: true
+  video_fps: 4
+```
+
+Needs `imageio-ffmpeg` (in requirements.txt) - it bundles ffmpeg, so there is no
+system install.
+
 ## Watching it run live
 
 ```
@@ -174,6 +191,7 @@ python main.py --skip-run
 | `experiment.py` | the runner: trials, logging, crash-safe saving, resume |
 | `analyze_results.py` | results.json → plots |
 | `viewer.py` | results.json → viewer.html |
+| `videos.py` | in-memory frames → one mp4 per model |
 | `main.py` | run + analyze + viewer in one command |
 
 ---

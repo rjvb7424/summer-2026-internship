@@ -42,7 +42,8 @@ class ExperimentCfg:
     max_turns: int = 100
     seed: int = 0
     same_world_each_trial: bool = True
-    save_frames: bool = True
+    record_video: bool = True
+    video_fps: int = 4
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "ExperimentCfg":
@@ -53,7 +54,8 @@ class ExperimentCfg:
             max_turns=int(d.get("max_turns", 100)),
             seed=int(d.get("seed", 0)),
             same_world_each_trial=bool(d.get("same_world_each_trial", True)),
-            save_frames=bool(d.get("save_frames", True)),
+            record_video=bool(d.get("record_video", True)),
+            video_fps=int(d.get("video_fps", 4)),
         )
 
 
@@ -192,8 +194,8 @@ class Config:
         return self.run_dir / "results.json"
 
     @property
-    def frames_dir(self) -> Path:
-        return self.run_dir / "frames"
+    def videos_dir(self) -> Path:
+        return self.run_dir / "videos"
 
     @property
     def plots_dir(self) -> Path:

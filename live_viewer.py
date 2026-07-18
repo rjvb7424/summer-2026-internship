@@ -55,6 +55,7 @@ class LiveViewer:
         self._lock = threading.Lock()
         self._server: ThreadingHTTPServer | None = None
         self._thread: threading.Thread | None = None
+        self._frame_png: bytes | None = None  # latest frame, served at /frame.png
         # The single snapshot every browser poll reads.
         self._state: dict = {
             "experiment": experiment_name,
@@ -131,6 +132,15 @@ class LiveViewer:
         with self._lock:
             self._state["status"] = "complete"
 
+    def set_frame(self, png_bytes: bytes) -> None:
+        """Publish the latest rendered frame (served at /frame.png)."""
+        with self._lock:
+            self._frame_png = png_bytes
+
+    def frame_png(self) -> bytes | None:
+        with self._lock:
+            return self._frame_png
+
     def snapshot(self) -> dict:
         with self._lock:
             return dict(self._state)
@@ -151,10 +161,23 @@ class _Handler(SimpleHTTPRequestHandler):
             self._send_html(_PAGE)
         elif self.path.startswith("/state"):
             self._send_json(self._viewer.snapshot())
+        elif self.path.startswith("/frame.png"):
+            self._send_frame(self._viewer.frame_png())
         else:
-            # Anything else (e.g. /frames/<slug>/trial_x/turn_n.png) is served
-            # from the run directory by the parent class.
+            # Anything else (e.g. a video under /videos/) is served from the
+            # run directory by the parent class.
             super().do_GET()
+
+    def _send_frame(self, png: bytes | None) -> None:
+        if not png:
+            self.send_error(404)
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", "image/png")
+        self.send_header("Content-Length", str(len(png)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(png)
 
     def _send_html(self, body: str) -> None:
         raw = body.encode("utf-8")

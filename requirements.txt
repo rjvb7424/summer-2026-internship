@@ -4,6 +4,7 @@ numpy
 Pillow
 ruamel.yaml
 imageio
+imageio-ffmpeg    # bundles ffmpeg so mp4 videos work with no system install
 opensimplex
 
 # Plots
