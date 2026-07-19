@@ -6,15 +6,16 @@
 # =============================================================================
 
 experiment:
-  name: gather_wood_10x10     # names the output folder: runs/<name>/
-  output_dir: runs            # results.json, frames and plots live here
-  num_trials: 5               # trials run per model
-  max_turns: 100              # step budget per trial (turn = one LLM decision)
-  seed: 0                     # base RNG seed
-  same_world_each_trial: true # true  -> identical world every trial
-                              # false -> world seed = base_seed + trial_index
-  record_video: true          # at the end, save ONE mp4 per model (not screenshots)
-  video_fps: 4                # playback speed of that video
+  name: gather_wood_10x10 # names the output folder: runs/<name>/
+  output_dir: runs # results.json, frames and plots live here
+  num_trials: 5 # trials run per model
+  max_turns: 100 # step budget per trial (turn = one LLM decision)
+  seed: 0 # base RNG seed
+  same_world_each_trial:
+    true # true  -> identical world every trial
+    # false -> world seed = base_seed + trial_index
+  record_video: true # at the end, save ONE mp4 per model (not screenshots)
+  video_fps: 4 # playback speed of that video
 
 # --- What counts as a success -------------------------------------------------
 #  Swap `target` to change the whole experiment. Any Crafter achievement works:
@@ -24,18 +25,18 @@ experiment:
 #    make_stone_pickaxe, make_iron_pickaxe, make_wood_sword, make_stone_sword,
 #    make_iron_sword, defeat_zombie, defeat_skeleton, wake_up
 objective:
-  type: achievement           # 'achievement' | 'inventory'
-  target: collect_wood        # achievement name (for type: achievement)
-  item: wood                  # item name          (for type: inventory)
-  amount: 1                   # required count      (for type: inventory)
+  type: achievement # 'achievement' | 'inventory'
+  target: collect_wood # achievement name (for type: achievement)
+  item: wood # item name          (for type: inventory)
+  amount: 1 # required count      (for type: inventory)
 
 # --- The world ----------------------------------------------------------------
 world:
-  size: [10, 10]              # [width, height] - make it as big/small as you like
-  base_terrain: grass         # material every tile starts as
-  player_start: null          # null = centre of the map, or [x, y]
-  static: true                # true disables dynamic zombie/cow (de)spawning
-  freeze_daylight: true       # true = permanent daytime (no night, no dark)
+  size: [10, 10] # [width, height] - make it as big/small as you like
+  base_terrain: grass # material every tile starts as
+  player_start: null # null = centre of the map, or [x, y]
+  static: true # true disables dynamic zombie/cow (de)spawning
+  freeze_daylight: true # true = permanent daytime (no night, no dark)
 
   # Give the player starting items. Handy when the goal needs a tool, e.g. to
   # test `make_stone_pickaxe` give: {wood_pickaxe: 1, wood: 2, stone: 1}
@@ -119,27 +120,28 @@ prompt:
 
 # --- How to read an action out of the model's raw text -----------------------
 actions:
-  strategy: keyword           # 'keyword' -> find "ACTION: x", else any action word
-  fallback: noop              # action used when nothing parses
+  strategy: keyword # 'keyword' -> find "ACTION: x", else any action word
+  fallback: noop # action used when nothing parses
 
 # --- Models to evaluate -------------------------------------------------------
 #  backend: 'huggingface' (local transformers) or 'mock' (no download).
 #  Models run one at a time and are unloaded before the next, so a heavy model
 #  failing to load never blocks the others.
 models:
-  - name: Qwen/Qwen2.5-3B-Instruct
+  - name: Phi-4-mini-instruct
     backend: huggingface
     max_new_tokens: 256
     temperature: 0.7
-    dtype: auto               # auto | float16 | bfloat16 | float32
-    device: auto              # auto | mps | cuda | cpu
+    dtype: auto # auto | float16 | bfloat16 | float32
+    device: auto # auto | mps | cuda | cpu
 
   # A zero-download baseline that walks toward the goal tile. Great for
   # checking the whole pipeline and as a non-LLM reference point.
   - name: heuristic-baseline
     backend: mock
-    policy: heuristic          # 'heuristic' | 'random' | 'fixed'
-    fixed_action: noop         # only used when policy: fixed
+    policy: heuristic # 'heuristic' | 'random' | 'fixed'
+    fixed_action: noop # only used when policy: fixed
+
 
   # --- Hosted API models -----------------------------------------------------
   # Put your keys in a .env file (copy .env.example). Then uncomment.

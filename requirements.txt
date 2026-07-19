@@ -20,5 +20,7 @@ transformers
 accelerate
 
 # Hosted API models
-openai            # backend: openai  (ChatGPT: gpt-4o-mini, gpt-4o, ...)
-google-genai      # backend: gemini  (gemini-2.5-flash, ...)
+openai
+google-genai
+
+imageio-ffmpeg
