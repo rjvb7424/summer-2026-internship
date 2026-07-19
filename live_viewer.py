@@ -296,6 +296,7 @@ _PAGE = """<!doctype html>
 
 <script>
 const POLL_MS = __POLL_MS__;
+let lastFrameKey = null;
 function esc(s){ return (s||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 
 async function tick(){
@@ -319,11 +320,19 @@ async function tick(){
     (s.think_seconds != null ? s.think_seconds.toFixed(2) + 's' : '-');
   document.getElementById('mFacing').textContent = s.facing || '-';
 
-  const frame = document.getElementById('frame');
-  if (s.frame){
-    frame.innerHTML = '<img src="/' + s.frame + '?t=' + Date.now() + '" alt="state">';
-  } else if (s.map_text){
-    frame.innerHTML = '<pre>' + esc(s.map_text) + '</pre>';
+  // Only touch the frame when the turn actually changes. Rebuilding the <img>
+  // on every 700ms poll is what made it flicker/stutter.
+  const frameKey = s.model + '|' + s.trial + '|' + s.turn + '|' + (s.frame ? 'img' : 'txt');
+  if (frameKey !== lastFrameKey){
+    lastFrameKey = frameKey;
+    const frame = document.getElementById('frame');
+    if (s.frame){
+      let img = frame.querySelector('img');
+      if (!img){ frame.textContent = ''; img = document.createElement('img'); img.alt = 'state'; frame.appendChild(img); }
+      img.src = '/' + s.frame + '?t=' + Date.now();  // fetch the new turn's frame
+    } else if (s.map_text){
+      frame.innerHTML = '<pre>' + esc(s.map_text) + '</pre>';
+    }
   }
 
   const inv = s.inventory ? Object.entries(s.inventory).map(([k,v])=>k+': '+v).join('\\n') : '';

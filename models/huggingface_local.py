@@ -45,6 +45,15 @@ class HuggingFaceModel(LanguageModel):
 
     # -- lifecycle ------------------------------------------------------------
     def load(self) -> None:
+        import os
+
+        if "/" not in self.name and not os.path.isdir(self.name):
+            raise RuntimeError(
+                f"'{self.name}' is not a valid HuggingFace model id - these are "
+                f"'org/name', e.g. 'microsoft/Phi-4-mini-instruct'. "
+                f"Add the org prefix in your config."
+            )
+
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
