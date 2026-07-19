@@ -33,12 +33,14 @@ class HuggingFaceModel(LanguageModel):
         temperature: float = 0.7,
         dtype: str = "auto",
         device: str = "auto",
+        token_env: str | None = None,
     ):
         super().__init__(name)
         self._max_new_tokens = int(max_new_tokens)
         self._temperature = float(temperature)
         self._dtype = dtype
         self._device_pref = device
+        self._token_env = token_env  # env var holding an HF token (for gated repos)
         self._model = None
         self._tokenizer = None
         self._device = None
@@ -61,12 +63,18 @@ class HuggingFaceModel(LanguageModel):
         torch_dtype = self._resolve_dtype(torch)
         LOG.info("Loading %s on %s (%s)...", self.name, self._device, torch_dtype)
 
-        self._tokenizer = AutoTokenizer.from_pretrained(self.name)
+        # token=False means "send no token" - public models download anonymously
+        # and any broken/expired token cached on the machine is ignored. For a
+        # gated repo, set `hf_token_env: HF_TOKEN` in the model's config and put
+        # a valid token in that environment variable.
+        token = os.environ.get(self._token_env) if self._token_env else False
+
+        self._tokenizer = AutoTokenizer.from_pretrained(self.name, token=token)
         if self._tokenizer.pad_token_id is None:
             self._tokenizer.pad_token = self._tokenizer.eos_token
 
         self._model = AutoModelForCausalLM.from_pretrained(
-            self.name, torch_dtype=torch_dtype
+            self.name, torch_dtype=torch_dtype, token=token
         ).to(self._device)
         self._model.eval()
 

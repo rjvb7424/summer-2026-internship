@@ -37,6 +37,7 @@ def build_model(spec: ModelSpec, objective_target: str | None = None) -> Languag
             temperature=float(opts.get("temperature", 0.7)),
             dtype=opts.get("dtype", "auto"),
             device=opts.get("device", "auto"),
+            token_env=opts.get("hf_token_env"),
         )
 
     if backend in ("openai", "chatgpt", "gpt"):
