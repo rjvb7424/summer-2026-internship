@@ -82,6 +82,24 @@ class OpenAIModel(LanguageModel):
         # Once a hosted model rejects tools, later turns skip them immediately.
         self._tools_supported: bool | None = None
 
+        # Same idea for temperature: reasoning models (o1/o3/...) reject a custom
+        # temperature. Once rejected, stop sending it so we don't waste a failed
+        # request every single turn.
+        #
+        # Reasoning models are detectable up front (o-series names, or an
+        # explicit reasoning_effort), so we skip temperature from the very first
+        # turn - no failed probe, no warning at all.
+        self._temperature_supported: bool | None = None
+        if self._is_reasoning_model():
+            self._temperature_supported = False
+
+    def _is_reasoning_model(self) -> bool:
+        """True for models that reject a custom temperature (OpenAI o-series,
+        or anything given a reasoning_effort)."""
+        if self._reasoning_effort:
+            return True
+        return bool(re.match(r"o\d", (self._model_id or ""), re.IGNORECASE))
+
     # -------------------------------------------------------------------------
     # Lifecycle
     # -------------------------------------------------------------------------
@@ -219,8 +237,10 @@ class OpenAIModel(LanguageModel):
             "model": self._model_id,
             "messages": messages,
             "max_completion_tokens": token_budget,
-            "temperature": self._temperature,
         }
+
+        if self._temperature_supported is not False:
+            params["temperature"] = self._temperature
 
         if self._reasoning_effort:
             params["reasoning_effort"] = self._reasoning_effort
@@ -318,6 +338,10 @@ class OpenAIModel(LanguageModel):
                     # tools and tool_choice depend on each other.
                     if bad_parameter in ("tools", "tool_choice"):
                         self._disable_tools_and_retry(params)
+                    elif bad_parameter == "temperature":
+                        # Remember it so future turns don't re-send it.
+                        self._temperature_supported = False
+                        params.pop("temperature", None)
                     else:
                         params.pop(bad_parameter, None)
 

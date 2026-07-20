@@ -126,6 +126,13 @@ models:
     force_action: false
     action_retries: 0
 
+  - name: o3-2025-04-16
+    backend: openai
+    max_tokens: 8000
+    reasoning_effort: low
+    force_action: true
+    action_retries: 1
+
   - name: heuristic-baseline
     backend: mock
     policy: heuristic
