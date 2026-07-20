@@ -13,12 +13,16 @@ without it installed. AI-facing: ``generate`` never prints or inputs.
 
 from __future__ import annotations
 
+import logging
 import os
+import random
 import time
 
 from models.base import LanguageModel
 
+LOG = logging.getLogger("crafter_experiment.models.openai")
 DEFAULT_KEY_ENV = "OPENAI_API_KEY"
+MAX_BACKOFF = 60.0  # cap a single wait at one minute
 
 
 class OpenAIModel(LanguageModel):
@@ -32,6 +36,9 @@ class OpenAIModel(LanguageModel):
         temperature: float = 0.7,
         api_key_env: str = DEFAULT_KEY_ENV,
         base_url: str | None = None,
+        request_delay: float = 0.0,
+        max_retries: int = 5,
+        retry_base_delay: float = 2.0,
     ):
         super().__init__(name)
         self._model_id = model or name  # config 'name' doubles as the model id
@@ -39,6 +46,9 @@ class OpenAIModel(LanguageModel):
         self._temperature = float(temperature)
         self._api_key_env = api_key_env
         self._base_url = base_url
+        self._request_delay = float(request_delay)      # throttle between calls
+        self._max_retries = int(max_retries)            # retries on rate limit
+        self._retry_base_delay = float(retry_base_delay)  # backoff base seconds
         self._client = None
 
     # -- lifecycle ------------------------------------------------------------
@@ -75,27 +85,65 @@ class OpenAIModel(LanguageModel):
             "temperature": self._temperature,
         }
 
-        start = time.perf_counter()
-        response = self._create(params)
-        elapsed = time.perf_counter() - start
+        # Throttle: space out requests to stay under rate limits. Not counted as
+        # think time, so it won't distort the latency numbers.
+        if self._request_delay > 0:
+            time.sleep(self._request_delay)
 
-        text = (response.choices[0].message.content or "").strip()
-        return text, elapsed
+        return self._create(params)
 
-    def _create(self, params: dict):
-        """Call the API, retrying without any parameter the model rejects
-        (e.g. reasoning models refuse 'temperature')."""
+    def _create(self, params: dict) -> tuple[str, float]:
+        """Call the API. Drops any parameter the model rejects, and on a rate
+        limit waits (honouring Retry-After) and retries instead of crashing."""
         import openai
 
-        for _ in range(4):
+        rate_limit_attempts = 0
+        while True:
             try:
-                return self._client.chat.completions.create(**params)
+                start = time.perf_counter()
+                response = self._client.chat.completions.create(**params)
+                elapsed = time.perf_counter() - start
+                text = (response.choices[0].message.content or "").strip()
+                return text, elapsed
             except openai.BadRequestError as exc:
                 bad = self._rejected_param(exc)
                 if bad and bad in params and bad not in ("model", "messages"):
                     params.pop(bad)
                     continue
                 raise
+            except (openai.RateLimitError, openai.APITimeoutError,
+                    openai.APIConnectionError) as exc:
+                rate_limit_attempts += 1
+                if rate_limit_attempts > self._max_retries:
+                    raise
+                wait = self._retry_wait(exc, rate_limit_attempts)
+                LOG.warning(
+                    "[%s] rate limited / transient error - waiting %.1fs, retry %d/%d",
+                    self.name, wait, rate_limit_attempts, self._max_retries,
+                )
+                time.sleep(wait)
+
+    def _retry_wait(self, exc, attempt: int) -> float:
+        """Seconds to wait: the server's Retry-After if given, else exponential
+        backoff with a little jitter."""
+        retry_after = self._retry_after(exc)
+        if retry_after is not None:
+            return retry_after
+        backoff = self._retry_base_delay * (2 ** (attempt - 1))
+        return min(backoff, MAX_BACKOFF) + random.uniform(0, 0.5)
+
+    @staticmethod
+    def _retry_after(exc) -> float | None:
+        response = getattr(exc, "response", None)
+        headers = getattr(response, "headers", None)
+        if headers:
+            value = headers.get("retry-after")
+            if value:
+                try:
+                    return float(value)
+                except (TypeError, ValueError):
+                    return None
+        return None
 
     @staticmethod
     def _rejected_param(exc) -> str | None:
