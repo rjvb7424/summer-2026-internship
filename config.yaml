@@ -68,12 +68,12 @@ prompt:
     You have a facing direction. Actions may move you, change your facing
     direction, or interact with the tile in front of you.
 
-    Reply with one very short line explaining your decision.
+    Respond with only one action name copied exactly from the available actions.
 
-    End with exactly:
-    ACTION: <action_name>
-
-    Copy the action name exactly from the available actions.
+    Do not explain your reasoning.
+    Do not add punctuation.
+    Do not use labels such as "ACTION:".
+    Do not provide more than one action.
 
   user: |
     OBJECTIVE:
@@ -97,25 +97,17 @@ prompt:
     AVAILABLE ACTIONS:
     {actions}
 
-    Choose one action.
-
-    ACTION: <action_name>
+    Respond with only the single action you choose.
 
 actions:
   strategy: keyword
   fallback: noop
 
 models:
-  - name: deepseek-ai/DeepSeek-R1
-    backend: huggingface-api
-    max_tokens: 256
-    temperature: 0.7
-    dtype: auto
-    device: auto
-
   - name: gpt-5.4-2026-03-05
     backend: openai
     temperature: 0.7
+    request_delay: 3.0
     dtype: auto
     device: auto
 
@@ -129,6 +121,7 @@ models:
   - name: o3-2025-04-16
     backend: openai
     temperature: 0.7
+    request_delay: 3.0
     dtype: auto
     device: auto
 
