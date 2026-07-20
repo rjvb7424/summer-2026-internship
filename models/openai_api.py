@@ -64,14 +64,44 @@ class OpenAIModel(LanguageModel):
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": user_prompt})
 
+        # max_completion_tokens is the current parameter and works for both chat
+        # models (gpt-4o, ...) and reasoning models (o1, o3, ...). Older 'max_tokens'
+        # is rejected by reasoning models. Reasoning models also reject a custom
+        # temperature; the retry below drops any parameter the model complains about.
+        params = {
+            "model": self._model_id,
+            "messages": messages,
+            "max_completion_tokens": self._max_tokens,
+            "temperature": self._temperature,
+        }
+
         start = time.perf_counter()
-        response = self._client.chat.completions.create(
-            model=self._model_id,
-            messages=messages,
-            max_tokens=self._max_tokens,
-            temperature=self._temperature,
-        )
+        response = self._create(params)
         elapsed = time.perf_counter() - start
 
         text = (response.choices[0].message.content or "").strip()
         return text, elapsed
+
+    def _create(self, params: dict):
+        """Call the API, retrying without any parameter the model rejects
+        (e.g. reasoning models refuse 'temperature')."""
+        import openai
+
+        for _ in range(4):
+            try:
+                return self._client.chat.completions.create(**params)
+            except openai.BadRequestError as exc:
+                bad = self._rejected_param(exc)
+                if bad and bad in params and bad not in ("model", "messages"):
+                    params.pop(bad)
+                    continue
+                raise
+
+    @staticmethod
+    def _rejected_param(exc) -> str | None:
+        body = getattr(exc, "body", None)
+        if isinstance(body, dict):
+            err = body.get("error", body)
+            if isinstance(err, dict):
+                return err.get("param")
+        return None
