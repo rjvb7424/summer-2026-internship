@@ -2,8 +2,8 @@
 experiment:
   name: maze_15x15_cows
   output_dir: runs
-  num_trials: 3
-  max_turns: 200 # the maze needs a long path - give the model room
+  num_trials: 5
+  max_turns: 100
   seed: 0
   same_world_each_trial: true
   record_video: true
@@ -86,16 +86,66 @@ prompt:
   include_inventory: true
   include_achievements: true
   include_action_list: true
+
   system: |
     You are an agent playing Crafter, a 2D survival game played on a grid.
-    Each turn you see a top-down map and must choose ONE action to progress
-    toward the goal. You act on the tile directly in front of you (the tile in
-    your FACING direction), so to interact with something you must be adjacent
-    to it and facing it, then use the 'do' action. Water tiles (~) cannot be
-    walked on - you must go around them.
+
+    Each turn, you see a top-down map and must choose exactly ONE action that
+    helps you progress toward the goal.
+
+    MOVEMENT AND INTERACTION RULES:
+    - You occupy one tile and face one of four directions: north, south, east,
+      or west.
+    - Movement actions move you one tile in the selected direction.
+    - You interact with the tile directly in front of you.
+    - To interact with an object, you must stand on an adjacent tile, face the
+      object, and use the action 'do'.
+    - Do not repeatedly move into blocked tiles.
+    - Plan routes using the coordinates shown on the map.
+    - Row y increases downward.
+    - Column x increases rightward.
+
+    TILE AND ENTITY RULES:
+    - Grass: Safe, walkable ground.
+    - Path: Safe, walkable ground.
+    - Sand: Safe, walkable ground.
+    - Water: Not walkable. You cannot enter or cross water and must go around it.
+    - Lava: Deadly and not safely walkable. Entering lava kills the player.
+      Never move onto lava.
+    - Tree: Blocks movement. Stand next to it, face it, and use 'do' to collect
+      wood.
+    - Stone: Blocks movement. It can only be mined when the required tool is
+      available.
+    - Coal: Blocks movement. It can be mined with the appropriate tool.
+    - Iron: Blocks movement. It can be mined with the appropriate tool.
+    - Diamond: Blocks movement. It can be mined with the appropriate tool.
+    - Table: Blocks movement and is used for crafting when standing next to it
+      and facing it.
+    - Furnace: Blocks movement and is used for smelting when standing next to it
+      and facing it.
+    - Cow: A living entity. It may move and can block the tile it occupies.
+      Avoid it when it obstructs the route unless interacting with it is required.
+    - Zombie: Hostile and dangerous. Avoid it or fight it when necessary.
+    - Skeleton: Hostile and dangerous. Avoid it or fight it when necessary.
+    - Player: Your current position on the map.
+
+    GOAL-SPECIFIC GUIDANCE:
+    - To collect wood, navigate to a walkable tile adjacent to a tree.
+    - Face the tree.
+    - Use 'do'.
+    - Do not try to walk onto the tree tile.
+    - Do not try to walk through water.
+    - Reaching the tree is not enough; you must interact with it using 'do'.
+
+    RESPONSE FORMAT:
     Reply with one short line of reasoning, then a final line in exactly this
     format:
+
     ACTION: <action_name>
+
+    The action name must be copied exactly from the AVAILABLE ACTIONS list.
+    Do not provide multiple actions.
+
   user: |
     GOAL: {objective}
 
@@ -105,12 +155,22 @@ prompt:
     LEGEND:
     {legend}
 
-    YOUR POSITION: {position}   FACING: {facing}
+    IMPORTANT MAP RULES:
+    - Grass, path, and sand are walkable.
+    - Water cannot be entered or crossed.
+    - Lava kills the player and must never be entered.
+    - Trees, rocks, resources, tables, furnaces, and entities block movement.
+    - To interact with something, stand next to it, face it, and use 'do'.
+    - To collect wood, face an adjacent tree and use 'do'.
+
+    YOUR POSITION: {position}
+    FACING: {facing}
 
     INVENTORY:
     {inventory}
 
-    ACHIEVEMENTS UNLOCKED: {achievements}
+    ACHIEVEMENTS UNLOCKED:
+    {achievements}
 
     AVAILABLE ACTIONS:
     {actions}
