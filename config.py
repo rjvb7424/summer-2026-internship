@@ -44,6 +44,7 @@ class ExperimentCfg:
     same_world_each_trial: bool = True
     record_video: bool = True
     video_fps: int = 4
+    video_resolution: int = 960
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "ExperimentCfg":
@@ -56,6 +57,7 @@ class ExperimentCfg:
             same_world_each_trial=bool(d.get("same_world_each_trial", True)),
             record_video=bool(d.get("record_video", True)),
             video_fps=int(d.get("video_fps", 4)),
+            video_resolution=int(d.get("video_resolution", 960)),
         )
 
 

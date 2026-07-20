@@ -1,9 +1,9 @@
-# 15x15 water maze: player top-left, tree top-right, water walls between.
+# 9x9 maze: player top-left, tree top-right.
 experiment:
-  name: maze_15x15_cows
+  name: maze_9x9
   output_dir: runs
   num_trials: 5
-  max_turns: 100
+  max_turns: 50
   seed: 0
   same_world_each_trial: true
   record_video: true
@@ -16,70 +16,39 @@ objective:
   amount: 1
 
 world:
-  size: [15, 15]
+  size: [9, 9]
   base_terrain: grass
-  player_start: [0, 0] # top-left corner
+  player_start: [0, 0]
   static: true
   freeze_daylight: true
   inventory: {}
+
   features:
     trees:
-      positions: [[14, 0]] # top-right corner
+      positions:
+        - [8, 0]
+
     water:
       positions:
-        [
-          [3, 0],
-          [9, 0],
-          [3, 1],
-          [9, 1],
-          [3, 2],
-          [9, 2],
-          [3, 3],
-          [6, 3],
-          [9, 3],
-          [12, 3],
-          [3, 4],
-          [6, 4],
-          [9, 4],
-          [12, 4],
-          [3, 5],
-          [6, 5],
-          [9, 5],
-          [12, 5],
-          [3, 6],
-          [6, 6],
-          [9, 6],
-          [12, 6],
-          [3, 7],
-          [6, 7],
-          [9, 7],
-          [12, 7],
-          [3, 8],
-          [6, 8],
-          [9, 8],
-          [12, 8],
-          [3, 9],
-          [6, 9],
-          [9, 9],
-          [12, 9],
-          [3, 10],
-          [6, 10],
-          [9, 10],
-          [12, 10],
-          [3, 11],
-          [6, 11],
-          [9, 11],
-          [12, 11],
-          [6, 12],
-          [12, 12],
-          [6, 13],
-          [12, 13],
-          [6, 14],
-          [12, 14],
-        ]
-  entities:
-    cow:
-      positions: [[13, 1], [2, 13]]
+        # First wall, with an opening near the bottom.
+        - [2, 0]
+        - [2, 1]
+        - [2, 2]
+        - [2, 3]
+        - [2, 4]
+        - [2, 5]
+        - [2, 6]
+        - [2, 8]
+
+        # Second wall, with an opening near the top.
+        - [5, 0]
+        - [5, 2]
+        - [5, 3]
+        - [5, 4]
+        - [5, 5]
+        - [5, 6]
+        - [5, 7]
+        - [5, 8]
 
 prompt:
   include_legend: true
@@ -88,94 +57,48 @@ prompt:
   include_action_list: true
 
   system: |
-    You are an agent playing Crafter, a 2D survival game played on a grid.
+    You are playing Crafter in a grid-based world.
 
-    Each turn, you see a top-down map and must choose exactly ONE action that
-    helps you progress toward the goal.
+    Choose exactly one action each turn to make progress toward the objective.
 
-    MOVEMENT AND INTERACTION RULES:
-    - You occupy one tile and face one of four directions: north, south, east,
-      or west.
-    - Movement actions move you one tile in the selected direction.
-    - You interact with the tile directly in front of you.
-    - To interact with an object, you must stand on an adjacent tile, face the
-      object, and use the action 'do'.
-    - Do not repeatedly move into blocked tiles.
-    - Plan routes using the coordinates shown on the map.
-    - Row y increases downward.
-    - Column x increases rightward.
+    Your position is given as [x, y]:
+    - x increases to the right.
+    - y increases downward.
 
-    TILE AND ENTITY RULES:
-    - Grass: Safe, walkable ground.
-    - Path: Safe, walkable ground.
-    - Sand: Safe, walkable ground.
-    - Water: Not walkable. You cannot enter or cross water and must go around it.
-    - Lava: Deadly and not safely walkable. Entering lava kills the player.
-      Never move onto lava.
-    - Tree: Blocks movement. Stand next to it, face it, and use 'do' to collect
-      wood.
-    - Stone: Blocks movement. It can only be mined when the required tool is
-      available.
-    - Coal: Blocks movement. It can be mined with the appropriate tool.
-    - Iron: Blocks movement. It can be mined with the appropriate tool.
-    - Diamond: Blocks movement. It can be mined with the appropriate tool.
-    - Table: Blocks movement and is used for crafting when standing next to it
-      and facing it.
-    - Furnace: Blocks movement and is used for smelting when standing next to it
-      and facing it.
-    - Cow: A living entity. It may move and can block the tile it occupies.
-      Avoid it when it obstructs the route unless interacting with it is required.
-    - Zombie: Hostile and dangerous. Avoid it or fight it when necessary.
-    - Skeleton: Hostile and dangerous. Avoid it or fight it when necessary.
-    - Player: Your current position on the map.
+    You have a facing direction. Actions may move you, change your facing
+    direction, or interact with the tile in front of you.
 
-    GOAL-SPECIFIC GUIDANCE:
-    - To collect wood, navigate to a walkable tile adjacent to a tree.
-    - Face the tree.
-    - Use 'do'.
-    - Do not try to walk onto the tree tile.
-    - Do not try to walk through water.
-    - Reaching the tree is not enough; you must interact with it using 'do'.
+    Reply with one very short line explaining your decision.
 
-    RESPONSE FORMAT:
-    Reply with one short line of reasoning, then a final line in exactly this
-    format:
-
+    End with exactly:
     ACTION: <action_name>
 
-    The action name must be copied exactly from the AVAILABLE ACTIONS list.
-    Do not provide multiple actions.
+    Copy the action name exactly from the available actions.
 
   user: |
-    GOAL: {objective}
+    OBJECTIVE:
+    {objective}
 
-    MAP (top-down; row = y increases downward, column = x increases rightward):
+    MAP:
     {map}
 
     LEGEND:
     {legend}
 
-    IMPORTANT MAP RULES:
-    - Grass, path, and sand are walkable.
-    - Water cannot be entered or crossed.
-    - Lava kills the player and must never be entered.
-    - Trees, rocks, resources, tables, furnaces, and entities block movement.
-    - To interact with something, stand next to it, face it, and use 'do'.
-    - To collect wood, face an adjacent tree and use 'do'.
-
-    YOUR POSITION: {position}
+    POSITION: {position}
     FACING: {facing}
 
     INVENTORY:
     {inventory}
 
-    ACHIEVEMENTS UNLOCKED:
+    ACHIEVEMENTS:
     {achievements}
 
     AVAILABLE ACTIONS:
     {actions}
 
-    Decide your single next action. End your reply with:
+    Choose one action.
+
     ACTION: <action_name>
 
 actions:
@@ -183,6 +106,19 @@ actions:
   fallback: noop
 
 models:
+  - name: deepseek-ai/DeepSeek-R1
+    backend: huggingface-api
+    max_tokens: 256
+    temperature: 0.7
+    dtype: auto
+    device: auto
+
+  - name: gpt-5.4-2026-03-05
+    backend: openai
+    temperature: 0.7
+    dtype: auto
+    device: auto
+
   - name: microsoft/phi-4
     backend: huggingface-api
     max_tokens: 256
@@ -192,14 +128,6 @@ models:
 
   - name: o3-2025-04-16
     backend: openai
-    temperature: 0.7
-    request_delay: 5.0
-    dtype: auto
-    device: auto
-
-  - name: deepseek-ai/DeepSeek-R1
-    backend: huggingface-api
-    max_tokens: 256
     temperature: 0.7
     dtype: auto
     device: auto

@@ -2,24 +2,29 @@
 videos.py
 =========
 
-Turns the per-turn frames captured during a run into ONE MP4 per model, so the
-run leaves a single watchable video instead of a folder full of screenshots.
+Writes ONE MP4 per model, streaming frames to disk as they are produced so the
+run never holds a whole video in memory - which is what makes high-resolution
+output affordable. Each trial gets a short title card and its last frame is held
+for a moment so you can see the outcome.
 
-Frames are held in memory during the run (never written as individual PNGs) and
-handed here trial by trial. Each trial is topped with a short title card and its
-last frame is held for a moment so you can see the outcome.
+    w = VideoWriter(path, fps=6, frame_size=(960, 960))
+    w.title(["gpt-4o-mini", "trial 1"])
+    for frame in frames: w.frame(frame)
+    w.hold(frames[-1])
+    w.close()
 
-    build_model_video("gpt-4o-mini", trials, Path("runs/x/videos/gpt.mp4"), fps=4)
-
-``trials`` is a list of ``(label, frames)`` where ``frames`` is a list of
-HxWx3 uint8 arrays. Requires imageio with the ffmpeg plugin (imageio-ffmpeg).
+Requires imageio with the ffmpeg plugin (imageio-ffmpeg). If that's missing the
+writer disables itself and the run continues without a video.
 """
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import numpy as np
+
+LOG = logging.getLogger("crafter_experiment.video")
 
 TITLE_HOLD_FRAMES = 6   # how long a trial's title card stays up
 END_HOLD_FRAMES = 8     # how long the final frame of a trial is held
@@ -31,19 +36,27 @@ FG = (230, 232, 239)    # title-card text colour
 #  Title cards
 # =============================================================================
 def _title_card(size: tuple[int, int], lines: list[str]) -> np.ndarray:
-    """A solid card the same size as the frames, with centred text."""
-    from PIL import Image, ImageDraw
+    """A solid card the same size as the frames, with centred, scaled text."""
+    from PIL import Image, ImageDraw, ImageFont
 
     w, h = size
     img = Image.new("RGB", (w, h), BG)
     draw = ImageDraw.Draw(img)
-    # Default bitmap font keeps this dependency-free and legible at small sizes.
-    line_h = 14
-    total = line_h * len(lines)
-    y = (h - total) // 2
+
+    font_size = max(14, min(w, h) // 14)      # scale text up on big frames
+    try:
+        font = ImageFont.load_default(size=font_size)  # Pillow >= 10.1
+    except TypeError:
+        font = ImageFont.load_default()
+
+    line_h = int(font_size * 1.4)
+    y = (h - line_h * len(lines)) // 2
     for line in lines:
-        tw = draw.textlength(line)
-        draw.text(((w - tw) / 2, y), line, fill=FG)
+        try:
+            tw = draw.textlength(line, font=font)
+        except TypeError:
+            tw = draw.textlength(line)
+        draw.text(((w - tw) / 2, y), line, fill=FG, font=font)
         y += line_h
     return np.asarray(img)
 
@@ -58,40 +71,57 @@ def _even(frame: np.ndarray) -> np.ndarray:
 
 
 # =============================================================================
-#  Video assembly
+#  Streaming writer
 # =============================================================================
-def build_model_video(
-    model_name: str,
-    trials: list[tuple[str, list[np.ndarray]]],
-    out_path: Path,
-    fps: int = 4,
-) -> Path | None:
-    """Write one MP4 covering all of a model's trials. Returns the path, or
-    None if there was nothing to render."""
-    import imageio.v2 as imageio
+class VideoWriter:
+    """Appends frames to an MP4 one at a time (constant memory)."""
 
-    frame_lists = [f for _, f in trials if f]
-    if not frame_lists:
-        return None
-    h, w = frame_lists[0][0].shape[:2]
+    def __init__(self, out_path: Path, fps: int, frame_size: tuple[int, int]):
+        self._out = Path(out_path)
+        self._fps = int(fps)
+        self._w, self._h = int(frame_size[0]), int(frame_size[1])
+        self._writer = None
+        self._count = 0
+        self._failed = False
 
-    sequence: list[np.ndarray] = []
-    for label, frames in trials:
-        if not frames:
-            continue
-        card = _title_card((w, h), [model_name, label])
-        sequence.extend([card] * TITLE_HOLD_FRAMES)
-        sequence.extend(frames)
-        sequence.extend([frames[-1]] * END_HOLD_FRAMES)
+    def _ensure(self) -> None:
+        if self._writer is not None or self._failed:
+            return
+        try:
+            import imageio.v2 as imageio
+            self._out.parent.mkdir(parents=True, exist_ok=True)
+            self._writer = imageio.get_writer(
+                self._out, fps=self._fps, codec="libx264",
+                quality=8, macro_block_size=1,
+            )
+        except Exception as exc:  # missing ffmpeg plugin, etc.
+            self._failed = True
+            LOG.error(
+                "video disabled (%s). Install it with: pip install imageio-ffmpeg",
+                exc,
+            )
 
-    sequence = [_even(np.asarray(f, dtype=np.uint8)) for f in sequence]
+    def _append(self, frame: np.ndarray) -> None:
+        self._ensure()
+        if self._failed:
+            return
+        self._writer.append_data(_even(np.asarray(frame, dtype=np.uint8)))
+        self._count += 1
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    # macro_block_size=1 keeps our exact dimensions (we already made them even).
-    with imageio.get_writer(
-        out_path, fps=fps, codec="libx264",
-        quality=8, macro_block_size=1,
-    ) as writer:
-        for frame in sequence:
-            writer.append_data(frame)
-    return out_path
+    # -- public API -----------------------------------------------------------
+    def title(self, lines: list[str], hold: int = TITLE_HOLD_FRAMES) -> None:
+        card = _title_card((self._w, self._h), lines)
+        for _ in range(hold):
+            self._append(card)
+
+    def frame(self, arr: np.ndarray) -> None:
+        self._append(arr)
+
+    def hold(self, arr: np.ndarray, n: int = END_HOLD_FRAMES) -> None:
+        for _ in range(n):
+            self._append(arr)
+
+    def close(self) -> Path | None:
+        if self._writer is not None:
+            self._writer.close()
+        return self._out if self._count > 0 else None

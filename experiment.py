@@ -45,8 +45,6 @@ from world import CustomCrafterEnv
 
 LOG = logging.getLogger("crafter_experiment.run")
 
-TILE_PIXELS = 24  # size of each map tile in the saved PNG frames
-
 
 class ExperimentRunner:
     """Runs every model over every trial and writes the results."""
@@ -60,7 +58,8 @@ class ExperimentRunner:
         self.parser = ActionParser(cfg.actions.strategy, cfg.actions.fallback)
         self.prompt_builder = PromptBuilder(cfg.prompt, self.checker.label)
         self.env = CustomCrafterEnv(cfg.world, seed=cfg.experiment.seed)
-        self.renderer = obs.ImageRenderer(self.env.textures, TILE_PIXELS)
+        self._tile_px = self._tile_pixels()
+        self.renderer = obs.ImageRenderer(self.env.textures, self._tile_px)
         self.results = self._load_or_init_results()
 
         # Optional real-time browser view, updated once per turn during the run.
@@ -106,17 +105,14 @@ class ExperimentRunner:
             return
 
         successes = sum(1 for t in record["trials"] if t["success"])
-        video_trials: list[tuple[str, list]] = []  # (label, frames) per trial
+        writer = self._new_video_writer(spec)
         try:
             for trial in range(done, total):
                 LOG.info("[%s] trial %d/%d ...", spec.name, trial + 1, total)
-                result, frames = self._run_trial(spec, model, trial, successes, trial)
+                result = self._run_trial(spec, model, trial, successes, trial, writer)
                 record["trials"].append(result)
                 successes += int(result["success"])
                 self._save()  # crash-safe: persist after every trial
-                if frames:
-                    label = f"trial {trial + 1} - {'solved' if result['success'] else 'failed'}"
-                    video_trials.append((label, frames))
                 LOG.info(
                     "[%s] trial %d -> %s (%d turns)",
                     spec.name, trial + 1,
@@ -126,42 +122,50 @@ class ExperimentRunner:
         finally:
             model.unload()
 
-        self._write_video(spec, video_trials)
-
-    def _write_video(self, spec, video_trials) -> None:
-        """Stitch a model's captured frames into one MP4 (best-effort)."""
-        if not self.cfg.experiment.record_video or not video_trials:
-            return
-        out = self.cfg.videos_dir / f"{spec.slug}.mp4"
-        try:
-            path = videos.build_model_video(
-                spec.name, video_trials, out, fps=self.cfg.experiment.video_fps
-            )
+        if writer is not None:
+            path = writer.close()
             if path:
                 LOG.info("[%s] video: %s", spec.name, path)
-        except Exception as exc:  # missing ffmpeg plugin, etc.
-            LOG.error(
-                "[%s] could not write video (%s). "
-                "Install it with: pip install imageio-ffmpeg", spec.name, exc
-            )
+
+    # =========================================================================
+    #  Rendering / video helpers
+    # =========================================================================
+    def _tile_pixels(self) -> int:
+        """Pixels per tile, chosen so the video's longest side is about
+        `video_resolution`. Snapped to a multiple of 16 (the source art is
+        16x16) so pixel-art upscaling stays crisp."""
+        res = int(self.cfg.experiment.video_resolution)
+        longest = max(self.cfg.world.size)
+        return max(16, round(res / longest / 16) * 16)
+
+    def _new_video_writer(self, spec):
+        if not self.cfg.experiment.record_video:
+            return None
+        width, height = self.cfg.world.size
+        size = (width * self._tile_px, height * self._tile_px)
+        out = self.cfg.videos_dir / f"{spec.slug}.mp4"
+        return videos.VideoWriter(out, self.cfg.experiment.video_fps, size)
 
     # =========================================================================
     #  One trial
     # =========================================================================
     def _run_trial(
         self, spec, model, trial: int,
-        prior_successes: int = 0, prior_trials: int = 0,
-    ) -> tuple[dict, list]:
+        prior_successes: int = 0, prior_trials: int = 0, video_writer=None,
+    ) -> dict:
         world_seed = self._world_seed(trial)
         self.env.set_world_seed(world_seed)
         self.env.reset()
 
         system_prompt, _ = self.prompt_builder.build(self.env)
         turns: list[dict] = []
-        trial_frames: list = []
-        need_frames = self.live is not None or self.cfg.experiment.record_video
+        need_frames = self.live is not None or video_writer is not None
+        last_frame = None
         success = False
         success_turn = None
+
+        if video_writer is not None:
+            video_writer.title([spec.name, f"trial {trial + 1}"])
 
         for turn in range(self.cfg.experiment.max_turns):
             # State the model is about to see.
@@ -170,13 +174,14 @@ class ExperimentRunner:
             pre_facing = obs.describe_facing(self.env.player)
             map_text = obs.render_text_map(self.env.world, self.env.player)
 
-            # Frame is kept in memory (for the live view and the end-of-run
-            # video); no per-turn PNG is written to disk.
+            # Frame is rendered in memory: streamed to the video and/or shown in
+            # the live view. No per-turn PNG is written to disk.
             frame_url = None
             if need_frames:
                 frame_arr = self.renderer.render_array(self.env.world, self.env.player)
-                if self.cfg.experiment.record_video:
-                    trial_frames.append(frame_arr)
+                last_frame = frame_arr
+                if video_writer is not None:
+                    video_writer.frame(frame_arr)
                 if self.live is not None:
                     self.live.set_frame(self._png_bytes(frame_arr))
                     frame_url = "frame.png"
@@ -241,6 +246,15 @@ class ExperimentRunner:
             if done:  # player died
                 break
 
+        # Close out the trial in the video: hold the final frame, then a short
+        # outcome card.
+        if video_writer is not None and last_frame is not None:
+            video_writer.hold(last_frame)
+            video_writer.title(
+                [f"trial {trial + 1}", "solved" if success else "not solved"],
+                hold=4,
+            )
+
         return {
             "trial": trial + 1,
             "world_seed": world_seed,
@@ -254,7 +268,7 @@ class ExperimentRunner:
                 k for k, v in self.env.player.achievements.items() if v > 0
             ),
             "turns": turns,
-        }, trial_frames
+        }
 
     # =========================================================================
     #  Helpers
