@@ -1,0 +1,2553 @@
+{
+  "experiment": "basic_5x5",
+  "config_fingerprint": {
+    "objective": {
+      "type": "achievement",
+      "target": "collect_wood",
+      "item": "wood",
+      "amount": 1
+    },
+    "world_size": [
+      5,
+      5
+    ],
+    "max_turns": 100
+  },
+  "objective": {
+    "type": "achievement",
+    "target": "collect_wood",
+    "label": "collect wood"
+  },
+  "world_size": [
+    5,
+    5
+  ],
+  "max_turns": 100,
+  "num_trials": 5,
+  "created": "2026-07-20T10:40:41",
+  "updated": "2026-07-20T10:52:27",
+  "models": {
+    "microsoft/phi-4": {
+      "backend": "huggingface-api",
+      "slug": "microsoft__phi-4",
+      "error": null,
+      "trials": [
+        {
+          "trial": 1,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 20,
+          "turns_used": 21,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 8,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to a tree and facing it. Currently, I am positioned at (x=2, y=3) facing down, but the tree is located at (x=2, y=1). To reach the tree, I must move directly towards it by moving down twice. The first step is to move down once to get closer.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.5366,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and facing it. Currently, I am positioned at (2, 4) and facing down, while the tree is at (2, 2). I need to move upward to get adjacent to the tree and face it. \n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.1265,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 2,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to interact with the tree. Currently, I am at (2,3) and facing up, but the tree is located at (2,1). I must move down twice to be adjacent and facing the tree. First, I'll move down.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.0794,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 3,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to and facing a tree. I am currently facing down, but the tree is to my left. I should move left to position myself correctly.\n\nACTION: move_left",
+              "parsed_action": "move_left",
+              "action_index": 1,
+              "parse_ok": true,
+              "think_seconds": 0.7592,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 4,
+              "player_pos": [
+                1,
+                4
+              ],
+              "facing": "left",
+              "map_text": ".....\n..T..\n.....\n.....\n.@...",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n.@...\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=1, y=4)   FACING: left\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and facing it. Currently, I am facing left, but the tree is to my right. To face the tree, I must first turn to face the right direction and then move right to be adjacent to the tree. My next action should be to move right.\n\nACTION: move_right",
+              "parsed_action": "move_right",
+              "action_index": 2,
+              "parse_ok": true,
+              "think_seconds": 1.0683,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 5,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "right",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: right\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to and facing the tree. Currently, I'm at (2, 4) facing right, while the tree is at (4, 2). I must move down twice to reach (4, 4), then move left twice to reach (2, 4) directly adjacent and facing the tree.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.1636,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 6,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to reach the tree and use the 'do' action to chop it down. Currently, I am facing down, but the tree is two tiles above me at (x=2, y=2). I need to move up twice to be adjacent to the tree and face it.\n\nFirst, I will move up to (x=2, y=3).\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.3614,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 7,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and facing it. Currently, I am at position (2, 3) facing up, while the tree is at (2, 1). I need to move down twice to reach the tree and be able to use the 'do' action to collect wood.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.1924,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 8,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and facing it. Currently, I am at position (2, 4) facing down, but the tree is at position (2, 2). I need to move up to be directly above the tree and then face it to use the 'do' action. Moving up once will bring me to position (2, 3), placing me directly above the tree.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.4234,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 9,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and facing it. Currently, I'm at (2, 3) facing up, and the tree is at (2, 1). I'll move down twice to be adjacent and facing the tree.\n\nACTION: move_down  \nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.0427,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 10,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to reach the tree and face it. Currently, I am at (2,4) facing down, while the tree is at (2,2). I should move down to get closer to the tree. \n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 0.8859,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 11,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to and facing the tree. Currently, I am at position (x=2, y=4) and facing down, but the tree is at position (x=2, y=2). To reach the tree, I should move up twice. First, I will move up once to position (x=2, y=3), and then I will be able to face and interact with the tree.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.4079,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 12,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and facing it. Currently, I am at position (2, 3) facing up, while the tree is at (2, 2). I need to move down one tile to be adjacent to the tree. \n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 0.9838,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 13,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to and facing the tree. Currently, I am at (2, 4) facing down, while the tree is at (2, 2). To reach the tree, I must move up twice. For the next move, I will go up once to (2, 3).\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.21,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 14,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to and facing the tree. Currently, I'm at (2, 3) facing up, and the tree is at (2, 1). I need to move down twice to be adjacent to the tree. First, I'll move down to (2, 4).\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.0984,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 15,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to reach the tree and then interact with it. Currently, I am facing down, but the tree is located two tiles up from my position. Therefore, I should reorient myself to face the tree by moving up first.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.0164,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 16,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to reach the tree. Currently, I am facing up, but the tree is located at (x=2, y=1), which means I need to move down to be adjacent to it. After moving down, I can use the 'do' action to collect wood from the tree.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.0928,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 17,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and facing it. Currently, I am at (x=2, y=4) and facing down, while the tree is located at (x=2, y=2). I need to move down two spaces to be adjacent to the tree and facing it. The next action is to move down.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.2245,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 18,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to reach the tree. Currently, I am facing down, but the tree is located two tiles up at (x=2, y=2). First, I need to change my facing direction to up. Then, I can move up twice to reach the tree and use the 'do' action to collect wood.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.1688,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 19,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and facing it. Currently, I am at position (2, 3) facing up, and the tree is at position (2, 1). To reach the tree, I need to move up two spaces.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.0813,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 20,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to interact with the tree. Currently, I am adjacent to it and facing upwards, which is the correct orientation to use the 'do' action to collect wood.\n\nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 0.8553,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 8,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 2,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to and facing the tree. Currently, I am at (2, 3) facing down, while the tree is at (2, 1). I need to move up twice to be adjacent and facing the tree.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.0431,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to interact with a tree. I am currently facing north, which means I am facing the tree directly. Therefore, the best course of action is to use the 'do' action to chop the tree and collect wood.\n\nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 1.1242,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 3,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and face it. Currently, I am positioned at (x=2, y=3) and facing down, but the tree is located at (x=2, y=1). Moving down will take me further away from the tree. To get to the tree, I should move up once to position myself at (x=2, y=2), then move up again to reach (x=2, y=1) and face the tree.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.7247,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to interact with the tree. I'm currently facing the tree, so I should use the 'do' action to chop it down and collect wood.\n\nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 0.815,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 4,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to and facing the tree. I am currently facing down, and the tree is at (x=2, y=2), which is one tile above me. Therefore, I should move up to be adjacent to the tree and then use the 'do' action to collect wood.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.092,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to chop down the tree. Currently, I am positioned at (x=2, y=2) and facing up, which means I am directly in front of the tree at (x=2, y=1). To interact with the tree, I need to use the 'do' action, which allows me to chop it down and collect wood. Since I am facing the tree and am adjacent to it, I am in the correct position to perform the 'do' action.\n\nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 1.6423,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 5,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 7,
+          "turns_used": 8,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood from the tree, I need to be adjacent to it and facing it directly. Currently, I am at (2, 3) facing down, while the tree is at (2, 1). I should first move down to (2, 4) to position myself directly above the tree. Then, I can move down again to (2, 5) to be adjacent and facing the tree, allowing me to use the 'do' action to collect wood.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.5485,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to reach the tree. Currently, I am positioned at (x=2, y=4) facing down, while the tree is at (x=2, y=2). Therefore, I need to move downward two tiles to be adjacent to and facing the tree. Once positioned correctly, I can use the 'do' action to interact with the tree and collect wood.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.4352,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 2,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to and facing the tree. Currently, I am at (x=2, y=4) facing down, while the tree is at (x=2, y=2). To reach and interact with the tree, I must move down.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.1129,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 3,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to reach the tree. Currently, I am facing down, but the tree is located above me. Therefore, I should move up to position myself adjacent to the tree and facing it.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 0.8126,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 4,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to and facing the tree. Currently, I'm at (2, 3) facing up, but the tree is at (2, 1). I must move down twice to be adjacent to the tree, then face it to use the 'do' action. For the first step, I'll move down to get closer.\n\nACTION: move_down",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 1.3314,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 5,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to chop down the tree. Currently, I am facing down, but the tree is located at (2, 2). Therefore, I must first move up to get adjacent to the tree and then face it to use the 'do' action to chop it down. The first step is to move up to position (2, 3).\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 1.3205,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 6,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to reach the tree. Currently, I'm positioned at (x=2, y=3) facing up, while the tree is located at (x=2, y=1). To move directly towards the tree, I should move up.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 0.9717,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 7,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to interact with the tree. I am currently adjacent to the tree and facing it, which allows me to use the 'do' action to collect wood.\n\nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 0.7288,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        }
+      ]
+    },
+    "o3-2025-04-16": {
+      "backend": "openai",
+      "slug": "o3-2025-04-16",
+      "error": null,
+      "trials": [
+        {
+          "trial": 1,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Need to get adjacent to the tree above; move toward it.  \nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 3.1476,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Facing tree directly ahead; use 'do' to chop wood.  \nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 1.2394,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 2,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 2,
+          "turns_used": 3,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "",
+              "parsed_action": "noop",
+              "action_index": 0,
+              "parse_ok": false,
+              "think_seconds": 3.4249,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Need to approach the tree above to chop it later. Moving up brings me closer and faces me correctly.  \nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 2.5346,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 2,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Facing the tree, so perform action to obtain wood.  \nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 1.5125,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 3,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 2,
+          "turns_used": 3,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "",
+              "parsed_action": "noop",
+              "action_index": 0,
+              "parse_ok": false,
+              "think_seconds": 3.2129,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Need to reach tree two tiles above; step closer.  \nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 2.5644,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 2,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Facing the tree directly ahead; perform action to chop and collect wood.  \nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 1.807,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 4,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 2,
+          "turns_used": 3,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "",
+              "parsed_action": "noop",
+              "action_index": 0,
+              "parse_ok": false,
+              "think_seconds": 3.3401,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Need to approach tree above; move closer by stepping up.  \nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 2.3852,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 2,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Tree is directly ahead; perform action to gather wood.  \nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 1.971,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 5,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Tree is two tiles north; move up to approach it.  \nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 3.026,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "Tree directly in front; chop it.  \nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 1.3839,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        }
+      ]
+    },
+    "deepseek-ai/DeepSeek-R1": {
+      "backend": "huggingface-api",
+      "slug": "deepseek-ai__DeepSeek-R1",
+      "error": null,
+      "trials": [
+        {
+          "trial": 1,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "The goal is to collect wood, which requires chopping down the tree (T) at position (2,1). Currently, I am at (2,3) facing down, so the tree is two tiles above me. To interact with it, I need to be adjacent and facing it. Moving up will position me at (2,2) directly below the tree and change my facing to up, setting up the next action to chop it.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 36.899,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are facing up (towards the top of the map). The tree (T) is at (x=2, y=1) because we are at (2,2) and facing up would be the tile above us, which is (2,1). The map shows:\nRow y=0: ..... (so y=0 is the top row)\nRow y=1: ..T.. (so at (2,1) there is a tree)\nRow y=2: ..@.. (we are at (2,2))\nRow y=3: .....\nRow y=4: .....\n\nWe are at (2,2) and facing up. The tree is directly in front of us at (2,1). Since we are adjacent to the tree and facing it, we can use the 'do' action to collect wood.\n\nThe goal is to collect wood. The tree is the source of wood. Therefore, we should use the 'do' action to chop the tree.\n\nNote: We don't have any tools, but in Crafter, we can collect wood from a tree by using the 'do' action without a tool (though it might be slower). Since the goal is to collect wood, and we",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 7.1021,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 2,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 2,
+          "turns_used": 3,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are given a goal: collect wood.\n The map shows:\n   .....\n   ..T..\n   .....\n   ..@..\n   .....\n Our position: (x=2, y=3) and facing down.\n The tree (T) is at (x=2, y=1) because:\n   Row 0: ..... (y=0)\n   Row 1: ..T.. (y=1, and T is at the third character, so x=2, y=1)\n We are at (2,3) facing down. The tree is at (2,1) which is two tiles above us.\n\n Since we are facing down, we are not currently facing the tree (which is up).\n To collect wood, we must be adjacent to the tree and facing it, then use the 'do' action to chop it.\n\n Steps:\n 1. We need to move toward the tree. Since the tree is above us (same x, lower y), we need to move up.\n 2. Currently we are facing down. We must change our facing to up to eventually face the tree when we get adjacent.\n\n However, note that the available actions include movement and turning is done by moving in a direction?",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 7.8006,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to be adjacent to the tree and facing it. The tree is at (2,1), and I'm at (2,3) facing down. Moving up will position me at (2,2) facing up, adjacent to the tree, setting me up to use 'do' next turn.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 60.9554,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 2,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are facing up. The tree is at (x=2, y=1) because we are at (2,2) and the tree is one above us (since facing up and the map shows the tree at the same x and y=1 which is above y=2).\n Since we are adjacent to the tree and facing it (because we are facing up and the tree is directly above), we can use the 'do' action to collect wood.\n The goal is to collect wood, so we should do that.\n However, note that the tree is at (2,1) and we are at (2,2) facing up. So we are facing the tree and adjacent to it.\n Therefore, we can use the 'do' action to collect wood from the tree.\n\n Let me check the available actions: 'do' is available.\n\n So the plan is: use 'do' to collect wood from the tree.\n\n Reasoning: I am facing the tree and adjacent to it. Using 'do' will collect wood, which is the goal.\n\n ACTION: do\n</think>\nTo collect wood, I need to interact with the tree. The tree is directly above me at (x=2, y=1), and I'm facing up,",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 9.7873,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 3,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 5,
+          "turns_used": 6,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are facing down. The tree is at (x=2, y=1) and we are at (x=2, y=3). \n Since we are facing down, the tile directly in front of us is (x=2, y=4). \n However, the tree is above us (at y=1) and we are at y=3. To get to the tree, we need to move up twice.\n\n Currently, we are at (2,3) and facing down. We want to collect wood from the tree at (2,1). \n We must be adjacent to the tree and facing it to use the 'do' action to collect wood.\n\n Steps:\n 1. Change our facing to up (because the tree is above us). But we can only change facing by moving in a direction.\n    Since we are facing down, we can move up to change our facing to up? Actually, note: moving up will change our position and facing?\n    However, the actions available are move_left, move_right, move_up, move_down. Each move action changes both position and facing to that direction.\n\n 2. We need to move up twice to get to (2,2) and then (2,",
+              "parsed_action": "move_down",
+              "action_index": 4,
+              "parse_ok": true,
+              "think_seconds": 9.0876,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                4
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n.....\n..@..",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n.....\n..@..\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=4)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I must first position myself adjacent to the tree and face it. Currently, the tree is at (2,2), and I am at (2,4) facing down. Moving up once will place me at (2,3), adjacent to the tree and facing upward toward it, allowing a \"do\" action next turn to collect the wood.\n\nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 57.3159,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 2,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are at (2,3) facing up. The tree is at (2,1) because the map shows:\n Row y=0: ..... (so y=0 is top row)\n Row y=1: ..T.. (so at x=2, y=1)\n Row y=2: .....\n Row y=3: ..@.. (we are at x=2, y=3)\n\n We are facing up, which is towards decreasing y. So to get to the tree at (2,1) we need to move up twice.\n\n However, note that we are at (2,3) and the tree is at (2,1). We are facing up, so we are already oriented correctly.\n\n Steps:\n 1. We need to move up twice to get adjacent to the tree (at (2,2) and then (2,1) would be the tree? But note: the tree is at (2,1) and we are at (2,3). After one move up we are at (2,2) and then next move up would put us at (2,1) which is the tree's location? But we cannot occupy the same tile as the tree? Actually, the",
+              "parsed_action": "noop",
+              "action_index": 0,
+              "parse_ok": false,
+              "think_seconds": 6.2973,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 3,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are at (2,3) facing up. The tree is at (2,2) because the map shows:\n Row y=0: ..... (so y=0 is the top row)\n Row y=1: ..T.. (so at x=2, y=1)\n Row y=2: .....\n Row y=3: ..@.. (so we are at x=2, y=3)\n\n We are facing up, which is toward decreasing y. So the tile in front of us is (2,2) because moving up from (2,3) would go to (2,2). \n However, note the map: at (2,2) (which is the third row) is empty ('.').\n\n Actually, let's index the rows by their order:\n\n Row 0 (y=0): ..... -> columns: x=0,1,2,3,4 -> (0,0) to (4,0)\n Row 1 (y=1): ..T.. -> so at (2,1) there is a tree? Actually, the string is \"..T..\", meaning:\n   x=0: '.' -> grass\n   x=1: '.' -> grass",
+              "parsed_action": "noop",
+              "action_index": 0,
+              "parse_ok": false,
+              "think_seconds": 6.255,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 4,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are facing up. The tree is at (x=2, y=1) and we are at (x=2, y=3). \n To collect wood, we need to be adjacent to the tree and facing it, then use the 'do' action to chop it.\n Currently, we are two tiles below the tree. We need to move up twice to get adjacent to the tree.\n\n Step 1: Move up to (x=2, y=2) to be adjacent to the tree (which is at (x=2, y=1)).\n Step 2: Then we can face up and do the action to chop the tree.\n\n However, note that after moving up once, we will be at (x=2, y=2) and facing up (unchanged). \n Then the tree is directly above us at (x=2, y=1). So we can then use the 'do' action.\n\n But in this turn, we are at (2,3) and facing up. We can move up to get closer.\n\n Therefore, the next action should be move_up.\n\n After moving up, we will be at (2,2) and still facing up. Then in the next turn, we can",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 5.0697,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 5,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are at (2,2) facing up. The tree is at (2,1) (since y increases downward, row 1 is the top row, row 2 is the next, etc.). \n Our goal is to collect wood. To collect wood from a tree, we need to be adjacent to the tree and facing it, then use the 'do' action.\n Currently, we are facing up, and the tree is directly above us at (2,1). We are adjacent (one tile above) and facing it? \n Since we are facing up and the tree is in the tile above us, we are facing the tree. Therefore, we can use the 'do' action to collect wood.\n\n However, note that the map shows:\n   .....\n   ..T..   -> this is row 1 (y=1): tree at (x=2, y=1)\n   ..@..   -> this is row 2 (y=2): we are at (2,2) facing up.\n\n So we are at (2,2) and the tree is at (2,1). We are facing up, which is toward the tree. Therefore, we can do the action.\n\n But note: the available",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 6.6403,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 4,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 5,
+          "turns_used": 6,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are at (2,3) facing down. The tree is at (2,1) (since the map shows row y increases downward, and the tree is at the second row from top, which is y=1? Let me clarify: the map has 5 rows. The top row is y=0? or y=1? The problem says \"row = y increases downward\", and the map is:\n\nRow 0: .....\nRow 1: ..T..\nRow 2: .....\nRow 3: ..@..\nRow 4: .....\n\nSo:\n- The tree is at (x=2, y=1) because in row 1 (second row) and the third character (since columns start at 0? or 1? The problem says \"column = x increases rightward\", and the row is given as a string of 5 characters. The third character is at index 2 if we start counting from 0? Let me see:\n\nThe row string: \"..T..\"\nIndices: 0: '.', 1: '.', 2: 'T', 3: '.', 4: '.'\n\nSo tree is at (x=2, y=1).",
+              "parsed_action": "noop",
+              "action_index": 0,
+              "parse_ok": false,
+              "think_seconds": 7.1768,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are at (2,3) facing down. The tree is at (2,2) (since y=2, x=2). \n Currently, we are one tile below the tree. Since we are facing down, we are not facing the tree.\n To interact with the tree (to collect wood) we must be adjacent and facing it. \n We are adjacent (above the tree? Actually, we are below the tree: we are at (2,3) and tree at (2,2) so we are adjacent vertically). \n But we are facing down (towards (2,4) which is empty). So we are not facing the tree.\n\n Therefore, we need to change our facing to up so that we face the tree.\n\n However, note: the available actions do not include turning. Instead, we must move to change our facing? \n Actually, the actions only include moving in directions. When we move, we change our facing to the direction we move? \n But note: the problem says \"You act on the tile directly in front of you (the tile in your FACING direction)\". \n And the available actions are move_left, move_right, move_up, move_down. \n\n How do we change facing without moving",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 6.6071,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 2,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are facing down. The tree is at (x=2, y=1) and we are at (x=2, y=3). \n To collect wood, we need to be adjacent to the tree and facing it, then use the 'do' action to chop it.\n Currently, we are two tiles below the tree. We need to move up twice to get adjacent to the tree (at y=2) and then face the tree (which would be up).\n However, note that we are currently facing down. We must change our facing to interact with the tree.\n\n Steps:\n 1. Move up to (2,2) - now we are at (2,2) and the tree is at (2,1). We are adjacent to the tree (above us) but we are facing down (away from the tree).\n 2. We need to face up to be able to interact with the tree. But note: the available actions don't include turning. We change facing by moving in a direction? \n    Actually, the facing is determined by the last move. So if we move up, we will be facing up.\n\n Therefore:\n   First, move up to (2,2): that will make us face up",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 6.7727,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 3,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are at position (2,3) facing down. The tree is at (2,2) (since the map shows row y increases downward, and the tree is at the second row from top and second column from left? Let me read the map:\n\nThe map is 5x5:\n\nRow 0: .....   (y=0)\nRow 1: ..T..   (y=1)\nRow 2: .....   (y=2)\nRow 3: ..@..   (y=3)   -> we are at (x=2, y=3) because the @ is in the third column (index 2) and fourth row (index 3? but note: row = y increases downward, so row index 0 is top, row index 1 is next, then row index 2, then row index 3 is the fourth row from top? Actually, the map has 5 rows: indices 0 to 4? But the map shows:\n\nRow 0: ..... (y=0)\nRow 1: ..T.. (y=1)\nRow 2: ..... (y=2)\nRow 3: ..@.. (y=3)\nRow 4",
+              "parsed_action": "noop",
+              "action_index": 0,
+              "parse_ok": false,
+              "think_seconds": 7.2001,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 4,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are at (2,3) facing down. The tree is at (2,2) (since y=2, x=2). \n Since we are facing down, the tile in front of us is (2,4) because moving down increases y by 1. \n However, the tree is at (2,2) which is above us (y=2 is above y=3). \n Therefore, we are not facing the tree. We need to face the tree to interact with it.\n\n Steps:\n 1. We need to move to a position adjacent to the tree and face it.\n 2. The tree is at (2,2). We are at (2,3). We are one tile below the tree.\n 3. To face the tree, we must face up (because the tree is above us).\n\n Currently, we are facing down. We must change our facing to up.\n\n However, note: the available actions do not include turning. Instead, we move in the direction we want to face.\n\n How do we face up?\n We can use the move_up action to both move and change our facing? But note: the game mechanics in Crafter typically have the facing change to the direction you move. So",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 5.8506,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 5,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "The tree is directly above me at (2,1), and I'm facing up. To collect wood, I need to interact with the tree by using the 'do' action while adjacent and facing it. I'm already in position, so I should perform 'do' to harvest the wood.\n\nACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 8.8824,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 5,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 3,
+          "turns_used": 4,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are at (2,3) facing down. The tree is at (2,1) (since the map has rows: row0 is top, row3 is bottom? Actually the map shows 5 rows: index 0 to 4. The player is at row 3 (y=3) and column 2 (x=2). The tree is at (2,1) because in the map: row0: ..... (y=0), row1: ..T.. (y=1, and T is at x=2), row2: ..... (y=2), row3: ..@.. (y=3, x=2). So the tree is at (x=2, y=1). We are at (2,3) facing down.\n\nTo collect wood, we need to chop the tree. We must be adjacent to the tree and facing it, then use the 'do' action. Since the tree is directly above us (same x, y=1 vs our y=3) and we are facing down (which is upward in the grid? Wait: note the grid: row0 is top (y=0) and row4 is bottom (y=4). So moving",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 6.5963,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are at (2,3) facing down. The tree is at (2,1) (since x=2, y=1 in the map: row y=1 is the second row from top? Let me clarify the map:\n\nThe map is given as:\n.....\n..T..\n.....\n..@..\n.....\n\nThe rows (y) are:\nRow 0: ..... (y=0)\nRow 1: ..T.. (y=1) -> tree at (2,1) because the third character is T (columns: index 0,1,2,3,4 -> so x=2)\nRow 2: ..... (y=2)\nRow 3: ..@.. (y=3) -> player at (2,3) facing down.\n\nWe are at (2,3) and facing down. The tree is at (2,1). We are two tiles away from the tree vertically (from y=3 to y=1). Since we are facing down, we are pointing towards the tree? Actually, the tree is above us? Because y=1 is above y=3? Wait, note: row = y increases downward. So:\n\nTop row: y=0\nThen",
+              "parsed_action": "noop",
+              "action_index": 0,
+              "parse_ok": false,
+              "think_seconds": 6.1705,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 2,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "To collect wood, I need to chop the tree at (2,1). Currently at (2,3) facing down, I must first move closer and face the tree. Moving up to (2,2) positions me adjacent to the tree and changes my facing to up, preparing for the 'do' action next turn.  \nACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 95.3546,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 3,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "<think>\nWe are facing up. The tree is at (x=2, y=1) because the map shows:\n Row y=0: .....   -> (0,0) to (4,0)\n Row y=1: ..T..   -> (0,1) to (4,1): T at (2,1)\n Row y=2: ..@..   -> (0,2) to (4,2): we are at (2,2)\n Row y=3: .....\n\n Our position: (2,2) facing up. The tree is directly above us at (2,1). Since we are facing up, we are facing the tree.\n\n To collect wood, we need to use the 'do' action on the tree. But note: we must be adjacent and facing the tree. We are adjacent (above) and facing up (toward the tree). So we can use 'do' to collect wood.\n\n However, note that the goal is to collect wood. The tree is the resource for wood.\n\n Therefore, the next action should be 'do'.\n\n Let me check the available actions: 'do' is available.\n\n Reasoning: We are facing the tree and adjacent to it. Using 'do'",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 9.762,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        }
+      ]
+    },
+    "heuristic-baseline": {
+      "backend": "mock",
+      "slug": "heuristic-baseline",
+      "error": null,
+      "trials": [
+        {
+          "trial": 1,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 2,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 3,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 4,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        },
+        {
+          "trial": 5,
+          "world_seed": 0,
+          "success": true,
+          "success_turn": 1,
+          "turns_used": 2,
+          "final_inventory": {
+            "health": 9,
+            "food": 9,
+            "drink": 9,
+            "energy": 9,
+            "wood": 1
+          },
+          "final_achievements": [
+            "collect_wood"
+          ],
+          "turns": [
+            {
+              "turn": 0,
+              "player_pos": [
+                2,
+                3
+              ],
+              "facing": "down",
+              "map_text": ".....\n..T..\n.....\n..@..\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n.....\n..@..\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=3)   FACING: down\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: move_up",
+              "parsed_action": "move_up",
+              "action_index": 3,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9
+              },
+              "achievements_unlocked": [],
+              "reward": 0.0,
+              "done": false,
+              "success": false
+            },
+            {
+              "turn": 1,
+              "player_pos": [
+                2,
+                2
+              ],
+              "facing": "up",
+              "map_text": ".....\n..T..\n..@..\n.....\n.....",
+              "frame": null,
+              "prompt": "GOAL: collect wood\n\nMAP (top-down; row = y increases downward, column = x increases rightward):\n.....\n..T..\n..@..\n.....\n.....\n\nLEGEND:\n  . = grass\n  @ = you (the player)\n  T = tree\n\nYOUR POSITION: (x=2, y=2)   FACING: up\n\nINVENTORY:\n  health: 9\n  food: 9\n  drink: 9\n  energy: 9\n\nACHIEVEMENTS UNLOCKED: none yet\n\nAVAILABLE ACTIONS:\n  - noop\n  - move_left\n  - move_right\n  - move_up\n  - move_down\n  - do\n  - sleep\n  - place_stone\n  - place_table\n  - place_furnace\n  - place_plant\n  - make_wood_pickaxe\n  - make_stone_pickaxe\n  - make_iron_pickaxe\n  - make_wood_sword\n  - make_stone_sword\n  - make_iron_sword\n\nDecide your single next action. End your reply with:\nACTION: <action_name>",
+              "raw_response": "ACTION: do",
+              "parsed_action": "do",
+              "action_index": 5,
+              "parse_ok": true,
+              "think_seconds": 0.0,
+              "inventory": {
+                "health": 9,
+                "food": 9,
+                "drink": 9,
+                "energy": 9,
+                "wood": 1
+              },
+              "achievements_unlocked": [
+                "collect_wood"
+              ],
+              "reward": 1.0,
+              "done": false,
+              "success": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
