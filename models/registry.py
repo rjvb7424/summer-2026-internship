@@ -3,7 +3,7 @@ models/registry.py
 ==================
 
 Factory that turns a :class:`config.ModelSpec` into a concrete
-:class:`LanguageModel`. Add a new backend by extending ``build_model``.
+:class:`LanguageModel`.
 """
 
 from __future__ import annotations
@@ -14,6 +14,24 @@ from models.mock import MockModel, GOAL_SYMBOL_BY_TARGET
 from models.huggingface_local import HuggingFaceModel
 from models.openai_api import OpenAIModel
 from models.gemini_api import GeminiModel
+
+
+def _openai_compatible_model(spec: ModelSpec, *, api_key_env: str, base_url: str | None):
+    opts = spec.options
+    return OpenAIModel(
+        name=spec.name,
+        model=opts.get("model"),
+        max_tokens=int(opts.get("max_tokens", opts.get("max_new_tokens", 256))),
+        temperature=float(opts.get("temperature", 0.7)),
+        api_key_env=opts.get("api_key_env", api_key_env),
+        base_url=opts.get("base_url", base_url),
+        request_delay=float(opts.get("request_delay", 0.0)),
+        max_retries=int(opts.get("max_retries", 5)),
+        retry_base_delay=float(opts.get("retry_base_delay", 2.0)),
+        force_action=bool(opts.get("force_action", False)),
+        action_retries=int(opts.get("action_retries", 0)),
+        reasoning_effort=opts.get("reasoning_effort"),
+    )
 
 
 def build_model(spec: ModelSpec, objective_target: str | None = None) -> LanguageModel:
@@ -41,16 +59,10 @@ def build_model(spec: ModelSpec, objective_target: str | None = None) -> Languag
         )
 
     if backend in ("openai", "chatgpt", "gpt"):
-        return OpenAIModel(
-            name=spec.name,
-            model=opts.get("model"),
-            max_tokens=int(opts.get("max_tokens", opts.get("max_new_tokens", 256))),
-            temperature=float(opts.get("temperature", 0.7)),
-            api_key_env=opts.get("api_key_env", "OPENAI_API_KEY"),
-            base_url=opts.get("base_url"),
-            request_delay=float(opts.get("request_delay", 0.0)),
-            max_retries=int(opts.get("max_retries", 5)),
-            retry_base_delay=float(opts.get("retry_base_delay", 2.0)),
+        return _openai_compatible_model(
+            spec,
+            api_key_env="OPENAI_API_KEY",
+            base_url=None,
         )
 
     if backend in ("gemini", "google"):
@@ -62,19 +74,11 @@ def build_model(spec: ModelSpec, objective_target: str | None = None) -> Languag
             api_key_env=opts.get("api_key_env", "GEMINI_API_KEY"),
         )
 
-    # HuggingFace Inference Providers: run HF models in the cloud (no download).
-    # OpenAI-compatible router, so we reuse the OpenAI client pointed at it.
     if backend in ("huggingface-api", "hf-api", "hf-cloud"):
-        return OpenAIModel(
-            name=spec.name,
-            model=opts.get("model"),
-            max_tokens=int(opts.get("max_tokens", opts.get("max_new_tokens", 256))),
-            temperature=float(opts.get("temperature", 0.7)),
-            api_key_env=opts.get("api_key_env", "HF_TOKEN"),
-            base_url=opts.get("base_url", "https://router.huggingface.co/v1"),
-            request_delay=float(opts.get("request_delay", 0.0)),
-            max_retries=int(opts.get("max_retries", 5)),
-            retry_base_delay=float(opts.get("retry_base_delay", 2.0)),
+        return _openai_compatible_model(
+            spec,
+            api_key_env="HF_TOKEN",
+            base_url="https://router.huggingface.co/v1",
         )
 
     raise ValueError(f"Unknown model backend '{spec.backend}' for '{spec.name}'.")

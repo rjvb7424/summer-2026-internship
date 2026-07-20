@@ -105,27 +105,33 @@ actions:
 models:
   - name: microsoft/phi-4
     backend: huggingface-api
+    max_tokens: 128
     temperature: 0.2
-    dtype: auto
-    device: auto
+    force_action: true
+    action_retries: 1
 
   - name: gpt-5.4-2026-03-05
     backend: openai
+    max_tokens: 1024
     temperature: 0.2
-    dtype: auto
-    device: auto
+    reasoning_effort: minimal
+    force_action: true
+    action_retries: 1
 
-  - name: deepseek-ai/DeepSeek-R1
+  - name: deepseek-ai/DeepSeek-R1-0528
     backend: huggingface-api
+    max_tokens: 4096
     temperature: 0.2
-    dtype: auto
-    device: auto
+    force_action: true
+    action_retries: 1
 
   - name: o3-2025-04-16
     backend: openai
+    max_tokens: 1024
     temperature: 0.2
-    dtype: auto
-    device: auto
+    reasoning_effort: minimal
+    force_action: true
+    action_retries: 1
 
   - name: heuristic-baseline
     backend: mock
