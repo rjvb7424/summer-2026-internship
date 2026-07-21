@@ -1,12 +1,14 @@
+# 15x15 - tree deep in a tight water pocket, centered. Opening on the right.
 experiment:
-  name: tree_opening_9x9_V2
+  name: tree_opening_15x15
   output_dir: runs
-  num_trials: 4
+  num_trials: 8
   max_turns: 50
   seed: 0
   same_world_each_trial: true
   record_video: true
   video_fps: 6
+  video_resolution: 960
 
 objective:
   type: achievement
@@ -15,32 +17,32 @@ objective:
   amount: 1
 
 world:
-  size: [9, 9]
+  size: [15, 15]
   base_terrain: grass
-  player_start: [0, 4]
+  player_start: [0, 7]
   static: true
   freeze_daylight: true
   inventory: {}
-
   features:
     trees:
       positions:
-        - [6, 4]
-
+        - [7, 7]
     water:
       positions:
-        - [5, 3]
-        - [6, 3]
-        - [7, 3]
-        - [5, 4]
-        - [5, 5]
-        - [6, 5]
-        - [7, 5]
-
+        - [5, 6]
+        - [6, 6]
+        - [7, 6]
+        - [8, 6]
+        - [5, 7]
+        - [6, 7]
+        - [5, 8]
+        - [6, 8]
+        - [7, 8]
+        - [8, 8]
   entities:
     cow:
       positions:
-        - [3, 4]
+        - [4, 7]
 
 prompt:
   include_legend: true
@@ -49,41 +51,46 @@ prompt:
   include_action_list: true
 
   system: |
-    You are playing Crafter in a grid-based world.
+    You are an autonomous agent playing Crafter, a 2D grid survival game.
+    Every turn you receive the current state and must reply with EXACTLY ONE action.
 
-    Choose exactly one available action each turn to progress toward the objective.
+    YOUR GOAL: {objective}
 
-    Your position is shown as [x, y]:
-    - x increases to the right.
-    - y increases downward.
+    COORDINATES AND FACING
+    - Positions are [x, y]: x increases to the right, y increases downward.
+    - You always face one direction: up, down, left, or right.
+    - A move_ action does two things: it turns you to face that direction, and it
+      moves you one tile that way ONLY IF that tile is walkable. If the tile ahead
+      is blocked you do not move, but you STILL turn to face it.
+    - The 'do' action interacts with the single tile directly in front of you
+      (the tile in your current facing direction).
 
-    You have a facing direction. Some actions move you, while others interact
-    with the tile directly in front of you.
+    HOW TO INTERACT
+    - To act on something (for example, chop a tree) you must be on a tile next to
+      it, be facing it, then use 'do'.
+    - Example: a tree is directly to your right. Use move_right to face right (you
+      will not step onto it - trees block movement), then use 'do' to collect wood.
 
-    ENVIRONMENT RULES:
-    - Grass, path, and sand are walkable.
-    - Water cannot be walked on or crossed.
-    - Lava is dangerous and entering it kills you.
-    - Trees block movement. To collect wood, stand next to a tree, face it,
-      and use the interaction action.
-    - Stone, coal, iron, and diamond block movement and may require tools to mine.
-    - Tables and furnaces block movement and are used from an adjacent tile.
-    - Cows can move and may block your path.
-    - Zombies and skeletons are hostile and can hurt you.
-    - Do not repeatedly move into blocked tiles.
-    - Use the map, your position, and your facing direction to plan each move.
+    TILE RULES
+    - Walkable: grass, path, sand.
+    - Water: cannot be entered or crossed. You must go around it.
+    - Lava: entering it kills you. Never step into lava.
+    - Blocking (interact from an adjacent tile, cannot be walked through): trees,
+      stone, coal, iron, diamond, tables, furnaces. Stone and ores may need a tool.
+    - Cows wander and can block a tile. Zombies and skeletons are hostile.
 
-    Respond with only one action name copied exactly from AVAILABLE ACTIONS.
-    Do not explain.
-    Do not add punctuation.
-    Do not write "ACTION:".
-    Do not provide more than one action.
+    PLANNING AND MEMORY
+    - Use your position, your facing, and the map to plan each move.
+    - You can see your previous turns. If a move_ action did not change your
+      position, that direction was blocked - do not repeat it, choose another route.
+    - Never walk into water and never keep pushing against a blocked tile.
+
+    OUTPUT FORMAT
+    - Reply with ONLY one action name, copied exactly from AVAILABLE ACTIONS.
+    - No explanation, no punctuation, do not write "ACTION:", exactly one action.
 
   user: |
-    OBJECTIVE:
-    {objective}
-
-    MAP:
+    MAP (top-down; row = y increases downward, column = x increases rightward):
     {map}
 
     LEGEND:
@@ -101,7 +108,7 @@ prompt:
     AVAILABLE ACTIONS:
     {actions}
 
-    Respond with only the single action you choose.
+    Reply with exactly one action from AVAILABLE ACTIONS.
 
 actions:
   strategy: keyword
@@ -113,18 +120,21 @@ models:
     temperature: 0.2
     force_action: true
     action_retries: 1
+    history_turns: 8
 
   - name: microsoft/phi-4
     backend: huggingface-api
     temperature: 0.0
     force_action: false
     action_retries: 0
+    history_turns: 8
 
   - name: deepseek-ai/DeepSeek-V4-Flash
     backend: huggingface-api
     temperature: 0.0
     force_action: false
     action_retries: 0
+    history_turns: 8
 
   - name: o3-2025-04-16
     backend: openai
@@ -132,6 +142,7 @@ models:
     reasoning_effort: low
     force_action: true
     action_retries: 1
+    history_turns: 8
 
   - name: heuristic-baseline
     backend: mock

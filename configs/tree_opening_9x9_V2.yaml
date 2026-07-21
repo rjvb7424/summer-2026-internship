@@ -1,0 +1,139 @@
+experiment:
+  name: tree_opening_9x9_V2
+  output_dir: runs
+  num_trials: 4
+  max_turns: 50
+  seed: 0
+  same_world_each_trial: true
+  record_video: true
+  video_fps: 6
+
+objective:
+  type: achievement
+  target: collect_wood
+  item: wood
+  amount: 1
+
+world:
+  size: [9, 9]
+  base_terrain: grass
+  player_start: [0, 4]
+  static: true
+  freeze_daylight: true
+  inventory: {}
+
+  features:
+    trees:
+      positions:
+        - [6, 4]
+
+    water:
+      positions:
+        - [5, 3]
+        - [6, 3]
+        - [7, 3]
+        - [5, 4]
+        - [5, 5]
+        - [6, 5]
+        - [7, 5]
+
+  entities:
+    cow:
+      positions:
+        - [3, 4]
+
+prompt:
+  include_legend: true
+  include_inventory: true
+  include_achievements: true
+  include_action_list: true
+
+  system: |
+    You are playing Crafter in a grid-based world.
+
+    Choose exactly one available action each turn to progress toward the objective.
+
+    Your position is shown as [x, y]:
+    - x increases to the right.
+    - y increases downward.
+
+    You have a facing direction. Some actions move you, while others interact
+    with the tile directly in front of you.
+
+    ENVIRONMENT RULES:
+    - Grass, path, and sand are walkable.
+    - Water cannot be walked on or crossed.
+    - Lava is dangerous and entering it kills you.
+    - Trees block movement. To collect wood, stand next to a tree, face it,
+      and use the interaction action.
+    - Stone, coal, iron, and diamond block movement and may require tools to mine.
+    - Tables and furnaces block movement and are used from an adjacent tile.
+    - Cows can move and may block your path.
+    - Zombies and skeletons are hostile and can hurt you.
+    - Do not repeatedly move into blocked tiles.
+    - Use the map, your position, and your facing direction to plan each move.
+
+    Respond with only one action name copied exactly from AVAILABLE ACTIONS.
+    Do not explain.
+    Do not add punctuation.
+    Do not write "ACTION:".
+    Do not provide more than one action.
+
+  user: |
+    OBJECTIVE:
+    {objective}
+
+    MAP:
+    {map}
+
+    LEGEND:
+    {legend}
+
+    POSITION: {position}
+    FACING: {facing}
+
+    INVENTORY:
+    {inventory}
+
+    ACHIEVEMENTS:
+    {achievements}
+
+    AVAILABLE ACTIONS:
+    {actions}
+
+    Respond with only the single action you choose.
+
+actions:
+  strategy: keyword
+  fallback: noop
+
+models:
+  - name: gpt-5.4-2026-03-05
+    backend: openai
+    temperature: 0.2
+    force_action: true
+    action_retries: 1
+
+  - name: microsoft/phi-4
+    backend: huggingface-api
+    temperature: 0.0
+    force_action: false
+    action_retries: 0
+
+  - name: deepseek-ai/DeepSeek-V4-Flash
+    backend: huggingface-api
+    temperature: 0.0
+    force_action: false
+    action_retries: 0
+
+  - name: o3-2025-04-16
+    backend: openai
+    max_tokens: 8000
+    reasoning_effort: low
+    force_action: true
+    action_retries: 1
+
+  - name: heuristic-baseline
+    backend: mock
+    policy: heuristic
+    fixed_action: noop

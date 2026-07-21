@@ -36,7 +36,7 @@ class PromptBuilder:
         achievements = obs.format_achievements(player.achievements) if self._cfg.include_achievements else "(hidden)"
         actions = self._action_list if self._cfg.include_action_list else "(hidden)"
 
-        user = self._cfg.user.format(
+        fields = dict(
             objective=self._objective,
             map=obs.render_text_map(world, player),
             legend=legend,
@@ -46,4 +46,21 @@ class PromptBuilder:
             position=obs.describe_position(player),
             facing=obs.describe_facing(player),
         )
-        return self._cfg.system, user
+        # Both templates get the same placeholders, so constant context (the
+        # goal, the action list) can live in the system prompt and per-turn state
+        # in the user prompt - whichever the config author prefers.
+        system = self._safe_format(self._cfg.system, fields)
+        user = self._safe_format(self._cfg.user, fields)
+        return system, user
+
+    @staticmethod
+    def _safe_format(template: str, fields: dict) -> str:
+        """Fill {placeholders} but leave any other braces untouched, so a stray
+        '{' in a prompt can't crash the run."""
+        import string
+
+        class _Safe(dict):
+            def __missing__(self, key):
+                return "{" + key + "}"
+
+        return string.Formatter().vformat(template, (), _Safe(fields))
