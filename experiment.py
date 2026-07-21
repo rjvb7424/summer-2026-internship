@@ -156,6 +156,7 @@ class ExperimentRunner:
         world_seed = self._world_seed(trial)
         self.env.set_world_seed(world_seed)
         self.env.reset()
+        model.reset()  # clear conversation memory so trials don't bleed together
 
         system_prompt, _ = self.prompt_builder.build(self.env)
         turns: list[dict] = []

@@ -19,6 +19,7 @@ import logging
 import time
 
 from models.base import LanguageModel
+from models.conversation import ConversationMemory
 
 LOG = logging.getLogger("crafter_experiment.models.hf")
 
@@ -34,6 +35,7 @@ class HuggingFaceModel(LanguageModel):
         dtype: str = "auto",
         device: str = "auto",
         token_env: str | None = None,
+        history_turns: int = 0,
     ):
         super().__init__(name)
         self._max_new_tokens = int(max_new_tokens)
@@ -41,6 +43,7 @@ class HuggingFaceModel(LanguageModel):
         self._dtype = dtype
         self._device_pref = device
         self._token_env = token_env  # env var holding an HF token (for gated repos)
+        self._memory = ConversationMemory(history_turns)
         self._model = None
         self._tokenizer = None
         self._device = None
@@ -91,15 +94,16 @@ class HuggingFaceModel(LanguageModel):
         elif self._device == "mps" and hasattr(torch.mps, "empty_cache"):
             torch.mps.empty_cache()
 
+    def reset(self) -> None:
+        self._memory.reset()
+
     # -- inference ------------------------------------------------------------
     def generate(self, system_prompt: str, user_prompt: str) -> tuple[str, float]:
         import torch
 
-        # ``enc`` is a dict-like BatchEncoding of tensors (input_ids +
-        # attention_mask). It is unpacked into ``generate`` with ``**enc`` -
-        # passing it positionally makes transformers call ``.shape`` on the
-        # dict and raise AttributeError, which is the bug this fixes.
-        enc = self._encode(system_prompt, user_prompt).to(self._device)
+        # Include recent turns so the model remembers its own moves.
+        messages = self._memory.messages(system_prompt, user_prompt)
+        enc = self._encode(messages).to(self._device)
         prompt_len = enc["input_ids"].shape[-1]
         do_sample = self._temperature > 0.0
 
@@ -116,29 +120,26 @@ class HuggingFaceModel(LanguageModel):
 
         new_tokens = output_ids[0][prompt_len:]
         text = self._tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
+        self._memory.record(user_prompt, text)
         return text, elapsed
 
     # -- internals ------------------------------------------------------------
-    def _encode(self, system_prompt: str, user_prompt: str):
-        """Encode the prompt into a BatchEncoding (input_ids + attention_mask).
+    def _encode(self, messages: list[dict]):
+        """Encode a list of chat messages into a BatchEncoding.
 
-        Uses the model's chat template when it has one; otherwise concatenates.
-        Both branches return a dict-like BatchEncoding so ``generate(**enc)``
-        works identically for either path and across transformers versions.
+        Uses the model's chat template when it has one; otherwise flattens the
+        messages into role-labelled text. Returns a dict-like BatchEncoding so
+        ``generate(**enc)`` works across transformers versions.
         """
         tok = self._tokenizer
         if getattr(tok, "chat_template", None):
-            messages = []
-            if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": user_prompt})
             return tok.apply_chat_template(
                 messages,
                 add_generation_prompt=True,
                 return_tensors="pt",
                 return_dict=True,
             )
-        text = (system_prompt + "\n\n" + user_prompt).strip()
+        text = "\n\n".join(f"{m['role']}: {m['content']}" for m in messages).strip()
         return tok(text, return_tensors="pt")
 
     def _resolve_device(self, torch) -> str:

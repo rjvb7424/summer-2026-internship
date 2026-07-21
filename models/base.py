@@ -29,6 +29,10 @@ class LanguageModel(abc.ABC):
     def unload(self) -> None:
         """Release memory. Default: nothing to do."""
 
+    def reset(self) -> None:
+        """Clear any per-episode state (e.g. conversation memory). Called by the
+        runner at the start of each trial. Default: nothing to do."""
+
     @abc.abstractmethod
     def generate(self, system_prompt: str, user_prompt: str) -> tuple[str, float]:
         """

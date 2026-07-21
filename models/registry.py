@@ -36,6 +36,7 @@ def _openai_style_kwargs(opts: dict) -> dict:
         force_action=bool(opts.get("force_action", False)),
         action_retries=int(opts.get("action_retries", 0)),
         reasoning_effort=opts.get("reasoning_effort"),
+        history_turns=int(opts.get("history_turns", 8)),
     )
 
 
@@ -61,6 +62,7 @@ def build_model(spec: ModelSpec, objective_target: str | None = None) -> Languag
             dtype=opts.get("dtype", "auto"),
             device=opts.get("device", "auto"),
             token_env=opts.get("hf_token_env"),
+            history_turns=int(opts.get("history_turns", 8)),
         )
 
     if backend in ("openai", "chatgpt", "gpt"):
@@ -86,6 +88,7 @@ def build_model(spec: ModelSpec, objective_target: str | None = None) -> Languag
             max_tokens=int(opts.get("max_tokens", opts.get("max_new_tokens", 256))),
             temperature=float(opts.get("temperature", 0.7)),
             api_key_env=opts.get("api_key_env", "GEMINI_API_KEY"),
+            history_turns=int(opts.get("history_turns", 8)),
         )
 
     raise ValueError(f"Unknown model backend '{spec.backend}' for '{spec.name}'.")

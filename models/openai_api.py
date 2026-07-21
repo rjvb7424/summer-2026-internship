@@ -23,6 +23,7 @@ import time
 import crafter.constants as C
 
 from models.base import LanguageModel
+from models.conversation import ConversationMemory
 
 LOG = logging.getLogger("crafter_experiment.models.openai")
 DEFAULT_KEY_ENV = "OPENAI_API_KEY"
@@ -59,6 +60,7 @@ class OpenAIModel(LanguageModel):
         force_action: bool = False,
         action_retries: int = 0,
         reasoning_effort: str | None = None,
+        history_turns: int = 0,
     ):
         super().__init__(name)
 
@@ -73,6 +75,7 @@ class OpenAIModel(LanguageModel):
         self._force_action = bool(force_action)
         self._action_retries = max(0, int(action_retries))
         self._reasoning_effort = reasoning_effort
+        self._memory = ConversationMemory(history_turns)
         self._client = None
 
         # None: tool support has not been tested.
@@ -129,27 +132,17 @@ class OpenAIModel(LanguageModel):
     # -------------------------------------------------------------------------
     # Inference
     # -------------------------------------------------------------------------
+    def reset(self) -> None:
+        self._memory.reset()
+
     def generate(
         self,
         system_prompt: str,
         user_prompt: str,
     ) -> tuple[str, float]:
-        base_messages: list[dict] = []
-
-        if system_prompt:
-            base_messages.append(
-                {
-                    "role": "system",
-                    "content": system_prompt,
-                }
-            )
-
-        base_messages.append(
-            {
-                "role": "user",
-                "content": user_prompt,
-            }
-        )
+        # Prepend recent (user, assistant) turns so the model remembers what it
+        # just did. With history_turns=0 this is exactly [system, current user].
+        base_messages = self._memory.messages(system_prompt, user_prompt)
 
         # Request throttling is deliberately excluded from measured model
         # latency.
@@ -164,6 +157,7 @@ class OpenAIModel(LanguageModel):
 
         elapsed_total = 0.0
         last_response = None
+        output = None
 
         for attempt in range(attempts):
             messages = list(base_messages)
@@ -206,14 +200,16 @@ class OpenAIModel(LanguageModel):
             last_response = response
 
             if not self._force_action:
-                return self._response_text(response), elapsed_total
+                output = self._response_text(response)
+                break
 
             action = self._extract_action(response)
 
             if action is not None:
                 # The experiment receives only the canonical action, not the
                 # reasoning or other model output.
-                return action, elapsed_total
+                output = action
+                break
 
             LOG.warning(
                 "[%s] response contained no legal action "
@@ -224,9 +220,14 @@ class OpenAIModel(LanguageModel):
                 self._finish_reason(response),
             )
 
-        # If every attempt fails, preserve the raw output. ActionParser will
+        # If every attempt failed, preserve the raw output. ActionParser will
         # mark the parse as failed and apply the configured fallback.
-        return self._response_text(last_response), elapsed_total
+        if output is None:
+            output = self._response_text(last_response)
+
+        # Remember this turn (the current state and what we chose) for next time.
+        self._memory.record(user_prompt, output)
+        return output, elapsed_total
 
     def _request_params(
         self,

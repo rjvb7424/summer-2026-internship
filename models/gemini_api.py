@@ -16,6 +16,7 @@ import os
 import time
 
 from models.base import LanguageModel
+from models.conversation import ConversationMemory
 
 DEFAULT_KEY_ENV = "GEMINI_API_KEY"
 FALLBACK_KEY_ENV = "GOOGLE_API_KEY"
@@ -31,13 +32,18 @@ class GeminiModel(LanguageModel):
         max_tokens: int = 256,
         temperature: float = 0.7,
         api_key_env: str = DEFAULT_KEY_ENV,
+        history_turns: int = 0,
     ):
         super().__init__(name)
         self._model_id = model or name  # config 'name' doubles as the model id
         self._max_tokens = int(max_tokens)
         self._temperature = float(temperature)
         self._api_key_env = api_key_env
+        self._memory = ConversationMemory(history_turns)
         self._client = None
+
+    def reset(self) -> None:
+        self._memory.reset()
 
     # -- lifecycle ------------------------------------------------------------
     def load(self) -> None:
@@ -69,7 +75,7 @@ class GeminiModel(LanguageModel):
         start = time.perf_counter()
         response = self._client.models.generate_content(
             model=self._model_id,
-            contents=user_prompt,
+            contents=self._memory.gemini_contents(user_prompt),
             config=config,
         )
         elapsed = time.perf_counter() - start
@@ -77,4 +83,5 @@ class GeminiModel(LanguageModel):
         # response.text can be empty if the model returned no text part (e.g. a
         # safety block); fall back to an empty string so the turn still records.
         text = (getattr(response, "text", None) or "").strip()
+        self._memory.record(user_prompt, text)
         return text, elapsed
