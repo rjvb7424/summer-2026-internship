@@ -2,7 +2,7 @@ experiment:
   name: tree_opening_12x12
   output_dir: runs
   num_trials: 8
-  max_turns: 50
+  max_turns: 60
   seed: 0
   same_world_each_trial: true
   record_video: true
@@ -77,18 +77,11 @@ prompt:
       (the tile in your current facing direction).
 
     HOW TO INTERACT
-    - To act on something (for example, chop a tree) you must be on a tile next to
-      it, be facing it, then use 'do'.
-    - Example: a tree is directly to your right. Use move_right to face right (you
-      will not step onto it - trees block movement), then use 'do' to collect wood.
-
-    TILE RULES
-    - Walkable: grass, path, sand.
-    - Water: cannot be entered or crossed. You must go around it.
-    - Lava: entering it kills you. Never step into lava.
-    - Blocking (interact from an adjacent tile, cannot be walked through): trees,
-      stone, coal, iron, diamond, tables, furnaces. Stone and ores may need a tool.
-    - Cows wander and can block a tile. Zombies and skeletons are hostile.
+    - You can ONLY use 'do' when you are standing IMMEDIATELY ADJACENT to the
+      target (exactly 1 tile away, sharing an edge) AND facing directly at it.
+    - Example of a mistake to avoid: a tree is two or more tiles to your right.
+      Using 'do' here does nothing - you must move_right first to close the
+      distance to exactly one tile before using 'do'.
 
     PLANNING AND MEMORY
     - Use your position, your facing, and the map to plan each move.
@@ -101,13 +94,21 @@ prompt:
     - No explanation, no punctuation, do not write "ACTION:", exactly one action.
 
   user: |
-    YOUR GOAL IS TOO: {objective}
+    YOUR GOAL IS TO: {objective}
 
     MAP (top-down; row = y increases downward, column = x increases rightward):
     {map}
 
     LEGEND:
     {legend}
+
+    TILE RULES
+    - Walkable: grass, path, sand.
+    - Water: cannot be entered or crossed. You must go around it.
+    - Lava: entering it kills you. Never step into lava.
+    - Blocking (interact from an adjacent tile, cannot be walked through): trees,
+      stone, coal, iron, diamond, tables, furnaces. Stone and ores may need a tool.
+    - Cows wander and can block a tile. Zombies and skeletons are hostile.
 
     POSITION: {position}
     FACING: {facing}
@@ -128,6 +129,33 @@ actions:
   fallback: noop
 
 models:
+  - name: gpt-5.6-sol
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    reasoning_effort: medium
+    request_delay: 9.0
+    action_retries: 1
+    history_turns: 8
+
+  - name: gpt-5.6-terra
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    reasoning_effort: medium
+    request_delay: 9.0
+    action_retries: 1
+    history_turns: 8
+
+  - name: gpt-5.6-luna
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    reasoning_effort: medium
+    request_delay: 9.0
+    action_retries: 1
+    history_turns: 8
+
   - name: gpt-5.4-2026-03-05
     backend: openai
     temperature: 0.2
@@ -135,29 +163,33 @@ models:
     action_retries: 1
     history_turns: 8
 
-  - name: microsoft/phi-4
-    backend: huggingface-api
-    temperature: 0.0
-    force_action: false
-    action_retries: 0
-    history_turns: 8
-
-  - name: deepseek-ai/DeepSeek-V4-Flash
-    backend: huggingface-api
-    temperature: 0.0
-    force_action: false
-    action_retries: 0
-    history_turns: 8
-
   - name: o3-2025-04-16
     backend: openai
     max_tokens: 8000
-    reasoning_effort: low
     force_action: true
     action_retries: 1
     history_turns: 8
 
-  - name: heuristic-baseline
-    backend: mock
-    policy: heuristic
-    fixed_action: noop
+  - name: Qwen/Qwen3-235B-A22B-Instruct-2507
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
+
+  - name: openai/gpt-oss-120b
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
+
+  - name: meta-llama/Llama-3.3-70B-Instruct
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
+
+  - name: deepseek-ai/DeepSeek-V3.2
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8

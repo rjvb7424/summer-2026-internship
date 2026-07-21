@@ -400,44 +400,63 @@ class OpenAIModel(LanguageModel):
             self.name,
         )
 
-    @staticmethod
-    def _is_tools_unsupported(exc) -> bool:
-        text_parts = [str(exc)]
+@staticmethod
+def _is_tools_unsupported(exc) -> bool:
+    """
+    Detect endpoints that reject tools completely or reject the combination
+    of function tools and reasoning_effort.
 
-        body = getattr(exc, "body", None)
+    When this returns True, the request is retried without tools while keeping
+    reasoning_effort enabled. The model then returns a plain-text action, which
+    is still validated by _extract_action().
+    """
 
-        if isinstance(body, dict):
-            error = body.get("error", body)
+    text_parts = [str(exc)]
 
-            if isinstance(error, dict):
-                for key in (
-                    "message",
-                    "type",
-                    "param",
-                    "code",
-                ):
-                    text_parts.append(
-                        str(error.get(key, ""))
-                    )
-            else:
-                text_parts.append(str(error))
+    body = getattr(exc, "body", None)
 
-        text = " ".join(text_parts).lower()
+    if isinstance(body, dict):
+        error = body.get("error", body)
 
-        unsupported_phrases = (
-            "tool calling is not supported",
-            "tool calling not supported",
-            "tools are not supported",
-            "tools not supported",
-            "does not support tool",
-            "doesn't support tool",
-            "unsupported tool",
-        )
+        if isinstance(error, dict):
+            for key in (
+                "message",
+                "type",
+                "param",
+                "code",
+            ):
+                text_parts.append(
+                    str(error.get(key, ""))
+                )
+        else:
+            text_parts.append(str(error))
 
-        return any(
-            phrase in text
-            for phrase in unsupported_phrases
-        )
+    text = " ".join(text_parts).lower()
+
+    unsupported_phrases = (
+        # General tool-support errors.
+        "tool calling is not supported",
+        "tool calling not supported",
+        "tools are not supported",
+        "tools not supported",
+        "does not support tool",
+        "doesn't support tool",
+        "unsupported tool",
+
+        # OpenAI Chat Completions reasoning/tool incompatibility.
+        "function tools with reasoning_effort are not supported",
+        "function tools with reasoning effort are not supported",
+        "tools with reasoning_effort are not supported",
+        "tools with reasoning effort are not supported",
+        "to use function tools, use /v1/responses",
+        "set reasoning_effort to 'none'",
+        'set reasoning_effort to "none"',
+    )
+
+    return any(
+        phrase in text
+        for phrase in unsupported_phrases
+    )
 
     # -------------------------------------------------------------------------
     # Response extraction
