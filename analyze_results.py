@@ -477,7 +477,7 @@ def plot_success_matrix(
             )
 
     ax.set_title(
-        f"Success matrix of {experiment_name}\n"
+        f"Success matrix of {experiment_name} experiment\n"
         "(green = solved, red = failed, blank = not run)"
     )
 
