@@ -22,6 +22,10 @@ class LanguageModel(abc.ABC):
 
     def __init__(self, name: str):
         self.name = name
+        # Total tokens (prompt + completion, including hidden reasoning) used by
+        # the most recent generate() call. None if the backend can't report it.
+        # The runner reads this after each generate() to log per-turn token use.
+        self.last_usage: int | None = None
 
     def load(self) -> None:
         """Load weights / open clients. Default: nothing to do."""

@@ -193,3 +193,15 @@ models:
     force_action: false
     action_retries: 0
     history_turns: 8
+
+  - name: deepseek-ai/DeepSeek-V4-Pro
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
+
+  - name: deepseek-ai/DeepSeek-V4-Flash
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8

@@ -23,7 +23,6 @@ import time
 import crafter.constants as C
 
 from models.base import LanguageModel
-from models.conversation import ConversationMemory
 
 LOG = logging.getLogger("crafter_experiment.models.openai")
 DEFAULT_KEY_ENV = "OPENAI_API_KEY"
@@ -60,7 +59,6 @@ class OpenAIModel(LanguageModel):
         force_action: bool = False,
         action_retries: int = 0,
         reasoning_effort: str | None = None,
-        history_turns: int = 0,
     ):
         super().__init__(name)
 
@@ -75,7 +73,6 @@ class OpenAIModel(LanguageModel):
         self._force_action = bool(force_action)
         self._action_retries = max(0, int(action_retries))
         self._reasoning_effort = reasoning_effort
-        self._memory = ConversationMemory(history_turns)
         self._client = None
 
         # None: tool support has not been tested.
@@ -132,17 +129,27 @@ class OpenAIModel(LanguageModel):
     # -------------------------------------------------------------------------
     # Inference
     # -------------------------------------------------------------------------
-    def reset(self) -> None:
-        self._memory.reset()
-
     def generate(
         self,
         system_prompt: str,
         user_prompt: str,
     ) -> tuple[str, float]:
-        # Prepend recent (user, assistant) turns so the model remembers what it
-        # just did. With history_turns=0 this is exactly [system, current user].
-        base_messages = self._memory.messages(system_prompt, user_prompt)
+        base_messages: list[dict] = []
+
+        if system_prompt:
+            base_messages.append(
+                {
+                    "role": "system",
+                    "content": system_prompt,
+                }
+            )
+
+        base_messages.append(
+            {
+                "role": "user",
+                "content": user_prompt,
+            }
+        )
 
         # Request throttling is deliberately excluded from measured model
         # latency.
@@ -157,7 +164,7 @@ class OpenAIModel(LanguageModel):
 
         elapsed_total = 0.0
         last_response = None
-        output = None
+        self.last_usage = 0  # accumulate tokens across attempts this turn
 
         for attempt in range(attempts):
             messages = list(base_messages)
@@ -200,16 +207,14 @@ class OpenAIModel(LanguageModel):
             last_response = response
 
             if not self._force_action:
-                output = self._response_text(response)
-                break
+                return self._response_text(response), elapsed_total
 
             action = self._extract_action(response)
 
             if action is not None:
                 # The experiment receives only the canonical action, not the
                 # reasoning or other model output.
-                output = action
-                break
+                return action, elapsed_total
 
             LOG.warning(
                 "[%s] response contained no legal action "
@@ -220,14 +225,9 @@ class OpenAIModel(LanguageModel):
                 self._finish_reason(response),
             )
 
-        # If every attempt failed, preserve the raw output. ActionParser will
+        # If every attempt fails, preserve the raw output. ActionParser will
         # mark the parse as failed and apply the configured fallback.
-        if output is None:
-            output = self._response_text(last_response)
-
-        # Remember this turn (the current state and what we chose) for next time.
-        self._memory.record(user_prompt, output)
-        return output, elapsed_total
+        return self._response_text(last_response), elapsed_total
 
     def _request_params(
         self,
@@ -307,6 +307,15 @@ class OpenAIModel(LanguageModel):
                 )
 
                 elapsed = time.perf_counter() - start
+
+                # Accumulate real token usage (prompt + completion, and for
+                # reasoning models the hidden reasoning tokens are included in
+                # completion_tokens). Guarded so a provider that omits usage
+                # never breaks the run.
+                usage = getattr(response, "usage", None)
+                total = getattr(usage, "total_tokens", None) if usage else None
+                if total is not None:
+                    self.last_usage = (self.last_usage or 0) + int(total)
 
                 if "tools" in params:
                     self._tools_supported = True
@@ -400,63 +409,44 @@ class OpenAIModel(LanguageModel):
             self.name,
         )
 
-@staticmethod
-def _is_tools_unsupported(exc) -> bool:
-    """
-    Detect endpoints that reject tools completely or reject the combination
-    of function tools and reasoning_effort.
+    @staticmethod
+    def _is_tools_unsupported(exc) -> bool:
+        text_parts = [str(exc)]
 
-    When this returns True, the request is retried without tools while keeping
-    reasoning_effort enabled. The model then returns a plain-text action, which
-    is still validated by _extract_action().
-    """
+        body = getattr(exc, "body", None)
 
-    text_parts = [str(exc)]
+        if isinstance(body, dict):
+            error = body.get("error", body)
 
-    body = getattr(exc, "body", None)
+            if isinstance(error, dict):
+                for key in (
+                    "message",
+                    "type",
+                    "param",
+                    "code",
+                ):
+                    text_parts.append(
+                        str(error.get(key, ""))
+                    )
+            else:
+                text_parts.append(str(error))
 
-    if isinstance(body, dict):
-        error = body.get("error", body)
+        text = " ".join(text_parts).lower()
 
-        if isinstance(error, dict):
-            for key in (
-                "message",
-                "type",
-                "param",
-                "code",
-            ):
-                text_parts.append(
-                    str(error.get(key, ""))
-                )
-        else:
-            text_parts.append(str(error))
+        unsupported_phrases = (
+            "tool calling is not supported",
+            "tool calling not supported",
+            "tools are not supported",
+            "tools not supported",
+            "does not support tool",
+            "doesn't support tool",
+            "unsupported tool",
+        )
 
-    text = " ".join(text_parts).lower()
-
-    unsupported_phrases = (
-        # General tool-support errors.
-        "tool calling is not supported",
-        "tool calling not supported",
-        "tools are not supported",
-        "tools not supported",
-        "does not support tool",
-        "doesn't support tool",
-        "unsupported tool",
-
-        # OpenAI Chat Completions reasoning/tool incompatibility.
-        "function tools with reasoning_effort are not supported",
-        "function tools with reasoning effort are not supported",
-        "tools with reasoning_effort are not supported",
-        "tools with reasoning effort are not supported",
-        "to use function tools, use /v1/responses",
-        "set reasoning_effort to 'none'",
-        'set reasoning_effort to "none"',
-    )
-
-    return any(
-        phrase in text
-        for phrase in unsupported_phrases
-    )
+        return any(
+            phrase in text
+            for phrase in unsupported_phrases
+        )
 
     # -------------------------------------------------------------------------
     # Response extraction

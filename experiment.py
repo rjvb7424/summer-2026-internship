@@ -189,6 +189,7 @@ class ExperimentRunner:
 
             # Decision.
             raw_text, think_seconds = model.generate(system_prompt, user_prompt)
+            tokens = getattr(model, "last_usage", None)
             parsed = self.parser.parse(raw_text)
 
             # Advance the world.
@@ -207,6 +208,7 @@ class ExperimentRunner:
                 "action_index": parsed.index,
                 "parse_ok": parsed.ok,
                 "think_seconds": round(think_seconds, 4),
+                "tokens": tokens,
                 "inventory": {k: int(v) for k, v in info["inventory"].items() if v > 0},
                 "achievements_unlocked": sorted(
                     k for k, v in info["achievements"].items() if v > 0
