@@ -439,6 +439,14 @@ class OpenAIModel(LanguageModel):
             "does not support tool",
             "doesn't support tool",
             "unsupported tool",
+            # Reasoning models on Chat Completions reject tools + reasoning
+            # together. Recovery is the same: drop tools, keep reasoning, and
+            # let the model write the action as plain text.
+            "tools with reasoning",
+            "with reasoning_effort are not supported",
+            "incompatible with reasoning",
+            "reasoning_effort to 'none'",
+            "reasoning_effort to \"none\"",
         )
 
         return any(
