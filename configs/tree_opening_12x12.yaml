@@ -1,0 +1,207 @@
+experiment:
+  name: tree_opening_12x12
+  output_dir: runs
+  num_trials: 8
+  max_turns: 60
+  seed: 0
+  same_world_each_trial: true
+  record_video: true
+  video_fps: 6
+  video_resolution: 960
+
+objective:
+  type: achievement
+  target: collect_wood
+  item: wood
+  amount: 1
+
+world:
+  size: [12, 12]
+  base_terrain: grass
+  player_start: [0, 6]
+  static: true
+  freeze_daylight: true
+  inventory: {}
+  features:
+    trees:
+      positions:
+        - [6, 6]
+    water:
+      positions:
+        - [4, 4]
+        - [5, 4]
+        - [6, 4]
+        - [7, 4]
+        - [8, 4]
+        - [4, 5]
+        - [5, 5]
+        - [6, 5]
+        - [7, 5]
+        - [8, 5]
+        - [4, 6]
+        - [5, 6]
+        - [4, 7]
+        - [5, 7]
+        - [6, 7]
+        - [7, 7]
+        - [8, 7]
+        - [4, 8]
+        - [5, 8]
+        - [6, 8]
+        - [7, 8]
+        - [8, 8]
+  entities:
+    cow:
+      positions:
+        - [3, 6]
+
+prompt:
+  include_legend: true
+  include_inventory: true
+  include_achievements: true
+  include_action_list: true
+
+  system: |
+    You are an autonomous agent playing Crafter, a 2D grid survival game.
+    Every turn you receive the current state and must reply with EXACTLY ONE action.
+
+    YOUR GOAL: {objective}
+
+    COORDINATES AND FACING
+    - Positions are [x, y]: x increases to the right, y increases downward.
+    - You always face one direction: up, down, left, or right.
+    - A move_ action does two things: it turns you to face that direction, and it
+      moves you one tile that way ONLY IF that tile is walkable. If the tile ahead
+      is blocked you do not move, but you STILL turn to face it.
+    - The 'do' action interacts with the single tile directly in front of you
+      (the tile in your current facing direction).
+
+    HOW TO INTERACT
+    - You can ONLY use 'do' when you are standing IMMEDIATELY ADJACENT to the
+      target (exactly 1 tile away, sharing an edge) AND facing directly at it.
+    - Example of a mistake to avoid: a tree is two or more tiles to your right.
+      Using 'do' here does nothing - you must move_right first to close the
+      distance to exactly one tile before using 'do'.
+
+    PLANNING AND MEMORY
+    - Use your position, your facing, and the map to plan each move.
+    - You can see your previous turns. If a move_ action did not change your
+      position, that direction was blocked - do not repeat it, choose another route.
+    - Never walk into water and never keep pushing against a blocked tile.
+
+    OUTPUT FORMAT
+    - Reply with ONLY one action name, copied exactly from AVAILABLE ACTIONS.
+    - No explanation, no punctuation, do not write "ACTION:", exactly one action.
+
+  user: |
+    YOUR GOAL IS TO: {objective}
+
+    MAP (top-down; row = y increases downward, column = x increases rightward):
+    {map}
+
+    LEGEND:
+    {legend}
+
+    TILE RULES
+    - Walkable: grass, path, sand.
+    - Water: cannot be entered or crossed. You must go around it.
+    - Lava: entering it kills you. Never step into lava.
+    - Blocking (interact from an adjacent tile, cannot be walked through): trees,
+      stone, coal, iron, diamond, tables, furnaces. Stone and ores may need a tool.
+    - Cows wander and can block a tile. Zombies and skeletons are hostile.
+
+    POSITION: {position}
+    FACING: {facing}
+
+    INVENTORY:
+    {inventory}
+
+    ACHIEVEMENTS:
+    {achievements}
+
+    AVAILABLE ACTIONS:
+    {actions}
+
+    Reply with exactly one action from AVAILABLE ACTIONS.
+
+actions:
+  strategy: keyword
+  fallback: noop
+
+models:
+  - name: gpt-5.6-sol
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    reasoning_effort: medium
+    request_delay: 9.0
+    action_retries: 1
+    history_turns: 8
+
+  - name: gpt-5.6-terra
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    reasoning_effort: medium
+    request_delay: 9.0
+    action_retries: 1
+    history_turns: 8
+
+  - name: gpt-5.6-luna
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    reasoning_effort: medium
+    request_delay: 9.0
+    action_retries: 1
+    history_turns: 8
+
+  - name: gpt-5.4-2026-03-05
+    backend: openai
+    temperature: 0.2
+    force_action: true
+    action_retries: 1
+    history_turns: 8
+
+  - name: o3-2025-04-16
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    action_retries: 1
+    history_turns: 8
+
+  - name: Qwen/Qwen3-235B-A22B-Instruct-2507
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
+
+  - name: openai/gpt-oss-120b
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
+
+  - name: meta-llama/Llama-3.3-70B-Instruct
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
+
+  - name: deepseek-ai/DeepSeek-V3.2
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
+
+  - name: deepseek-ai/DeepSeek-V4-Pro
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
+
+  - name: deepseek-ai/DeepSeek-V4-Flash
+    backend: huggingface-api
+    force_action: false
+    action_retries: 0
+    history_turns: 8
