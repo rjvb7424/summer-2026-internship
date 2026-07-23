@@ -1,0 +1,282 @@
+experiment:
+  name: dynamic_pickaxe_maze_12x12
+  output_dir: runs
+  num_trials: 3
+  max_turns: 70
+  seed: 0
+  same_world_each_trial: true
+  record_video: true
+  video_fps: 6
+  video_resolution: 960
+
+objective:
+  type: achievement
+  target: make_stone_pickaxe
+  item: stone_pickaxe
+  amount: 1
+
+world:
+  size: [12, 12]
+  base_terrain: grass
+  player_start: [1, 6]
+  static: true
+  freeze_daylight: true
+  inventory: {}
+
+  features:
+    trees:
+      positions:
+        # Upper-left tree area
+        - [2, 2]
+        - [3, 2]
+        - [2, 3]
+        - [3, 3]
+
+    table:
+      positions:
+        # Central crafting table
+        - [6, 6]
+
+    stone:
+      positions:
+        # Lower-right stone area
+        - [8, 8]
+        - [9, 8]
+        - [8, 9]
+        - [9, 9]
+
+    water:
+      positions:
+        # Top boundary: y = 0
+        - [0, 0]
+        - [1, 0]
+        - [2, 0]
+        - [3, 0]
+        - [4, 0]
+        - [5, 0]
+        - [6, 0]
+        - [7, 0]
+        - [8, 0]
+        - [9, 0]
+        - [10, 0]
+        - [11, 0]
+
+        # Bottom boundary: y = 11
+        - [0, 11]
+        - [1, 11]
+        - [2, 11]
+        - [3, 11]
+        - [4, 11]
+        - [5, 11]
+        - [6, 11]
+        - [7, 11]
+        - [8, 11]
+        - [9, 11]
+        - [10, 11]
+        - [11, 11]
+
+        # Left boundary
+        - [0, 1]
+        - [0, 2]
+        - [0, 3]
+        - [0, 4]
+        - [0, 5]
+        - [0, 6]
+        - [0, 7]
+        - [0, 8]
+        - [0, 9]
+        - [0, 10]
+
+        # Right boundary
+        - [11, 1]
+        - [11, 2]
+        - [11, 3]
+        - [11, 4]
+        - [11, 5]
+        - [11, 6]
+        - [11, 7]
+        - [11, 8]
+        - [11, 9]
+        - [11, 10]
+
+        # Left-middle vertical wall
+        # Main openings at [4, 3] and [4, 6]
+        - [4, 1]
+        - [4, 2]
+        - [4, 4]
+        - [4, 5]
+
+        # Upper-right vertical wall
+        # Open below at [7, 5] and [7, 6]
+        - [7, 2]
+        - [7, 3]
+        - [7, 4]
+
+        # Small barrier below the tree area
+        # Can be passed from either side
+        - [2, 5]
+        - [3, 5]
+
+        # Small upper-right obstacle
+        - [9, 3]
+        - [9, 4]
+
+        # Lower-middle horizontal wall
+        # Openings at [1, 7], [5, 7], [8, 7], [9, 7], and [10, 7]
+        - [2, 7]
+        - [3, 7]
+        - [4, 7]
+        - [6, 7]
+        - [7, 7]
+
+        # Lower-left vertical wall
+        - [4, 8]
+        - [4, 9]
+        - [4, 10]
+
+  entities:
+    zombie:
+      positions:
+        # Between the trees and central crafting area
+        - [5, 3]
+
+        # Near the route between the table and stone
+        - [9, 6]
+
+        # Lower area near the return route
+        - [6, 9]
+
+prompt:
+  include_legend: true
+  include_inventory: true
+  include_achievements: true
+  include_action_list: true
+
+  system: |
+    You are an autonomous agent playing Crafter, a 2D grid survival game.
+    Every turn you receive the current state and must reply with EXACTLY ONE action.
+
+    YOUR GOAL: {objective}
+
+    COORDINATES AND FACING
+    - Positions are [x, y]: x increases to the right, y increases downward.
+    - You always face one direction: up, down, left, or right.
+    - A move_ action turns you to face that direction and attempts to move one tile.
+    - If the destination is blocked, your position does not change, but your
+      facing direction still changes.
+    - The 'do' action interacts with the single tile directly in front of you.
+
+    MOVEMENT AND INTERACTION
+    - Walk only on grass, path, or sand.
+    - Water cannot be entered or crossed.
+    - Trees, stone, crafting tables, and creatures may block movement.
+    - To collect a resource, stand immediately adjacent to it, face it, and use 'do'.
+    - Stone requires a wooden pickaxe before it can be collected.
+    - Crafting requires the necessary resources and access to the crafting table.
+    - The crafting table must be used from an adjacent grass tile.
+    - Three hostile zombies are present in the world.
+    - Zombies can move, block routes, and attack when nearby.
+    - Avoid zombies when a safe alternative route is available.
+    - If a zombie blocks the route, face it from an adjacent tile and use 'do'
+      to attack.
+
+    REQUIRED PROGRESSION
+    - First collect enough wood from the trees.
+    - Move next to the crafting table.
+    - Craft a wooden pickaxe.
+    - Travel to the stone area.
+    - Mine enough stone using the wooden pickaxe.
+    - Return to the crafting table.
+    - Craft the stone pickaxe.
+
+    PLANNING AND MEMORY
+    - Use the full map, position, facing, inventory, health, and achievements.
+    - Plan routes around water rather than repeatedly attempting blocked moves.
+    - Remember the locations of the trees, crafting table, and stone.
+    - Some water walls have multiple openings and alternative routes.
+    - Track the positions of all three zombies because they may move each turn.
+    - Do not move next to a zombie unnecessarily.
+    - Avoid becoming trapped between a zombie and a water wall.
+    - Preserve health while collecting resources and crafting the stone pickaxe.
+    - If a move did not change your position, that tile was blocked.
+    - Do not repeat an action that had no effect without changing the situation.
+    - Do not oscillate repeatedly between two positions.
+
+    OUTPUT FORMAT
+    - Reply with ONLY one action name copied exactly from AVAILABLE ACTIONS.
+    - No explanation, punctuation, labels, or additional text.
+
+  user: |
+    YOUR GOAL IS TO: {objective}
+
+    MAP (top-down; row = y increases downward, column = x increases rightward):
+    {map}
+
+    LEGEND:
+    {legend}
+
+    TILE RULES
+    - Walkable: grass, path, sand.
+    - Water is blocked and cannot be entered or crossed.
+    - Navigate through the available grass openings.
+    - Trees provide wood when interacted with using 'do' from an adjacent tile.
+    - Stone requires a wooden pickaxe and is collected using 'do'.
+    - The crafting table is used from an adjacent tile to craft tools.
+    - Resources and crafting tables cannot be walked through.
+    - Three hostile zombies are present.
+    - Zombies may move, block tiles, and attack when nearby.
+    - Avoid zombies when possible.
+    - Attack a blocking zombie by facing it from an adjacent tile and using 'do'.
+
+    POSITION: {position}
+    FACING: {facing}
+
+    INVENTORY:
+    {inventory}
+
+    ACHIEVEMENTS:
+    {achievements}
+
+    AVAILABLE ACTIONS:
+    {actions}
+
+    Reply with exactly one action from AVAILABLE ACTIONS.
+
+actions:
+  strategy: keyword
+  fallback: noop
+
+models:
+  - name: gpt-5.6-sol
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    reasoning_effort: medium
+    request_delay: 9.0
+    action_retries: 1
+    history_turns: 8
+
+  - name: gpt-5.6-terra
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    reasoning_effort: medium
+    request_delay: 9.0
+    action_retries: 1
+    history_turns: 8
+
+  - name: gpt-5.6-luna
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    reasoning_effort: medium
+    request_delay: 9.0
+    action_retries: 1
+    history_turns: 8
+
+  - name: o3-2025-04-16
+    backend: openai
+    max_tokens: 8000
+    force_action: true
+    action_retries: 1
+    history_turns: 8

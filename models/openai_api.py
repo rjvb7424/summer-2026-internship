@@ -93,28 +93,15 @@ class OpenAIModel(LanguageModel):
         # explicit reasoning_effort), so we skip temperature from the very first
         # turn - no failed probe, no warning at all.
         self._temperature_supported: bool | None = None
-
         if self._is_reasoning_model():
             self._temperature_supported = False
 
     def _is_reasoning_model(self) -> bool:
-        """
-        Return True for models that reject a custom temperature.
-
-        This includes OpenAI o-series models and models given an explicit
-        reasoning_effort.
-        """
-
+        """True for models that reject a custom temperature (OpenAI o-series,
+        or anything given a reasoning_effort)."""
         if self._reasoning_effort:
             return True
-
-        return bool(
-            re.match(
-                r"o\d",
-                self._model_id or "",
-                re.IGNORECASE,
-            )
-        )
+        return bool(re.match(r"o\d", (self._model_id or ""), re.IGNORECASE))
 
     # -------------------------------------------------------------------------
     # Lifecycle
@@ -153,15 +140,12 @@ class OpenAIModel(LanguageModel):
         system_prompt: str,
         user_prompt: str,
     ) -> tuple[str, float]:
-        # Prepend recent user/assistant turns so the model remembers what it
-        # just did. With history_turns=0, this is only the system prompt and
-        # current user prompt.
-        base_messages = self._memory.messages(
-            system_prompt,
-            user_prompt,
-        )
+        # Prepend recent (user, assistant) turns so the model remembers what it
+        # just did. With history_turns=0 this is exactly [system, current user].
+        base_messages = self._memory.messages(system_prompt, user_prompt)
 
-        # Request throttling is deliberately excluded from measured latency.
+        # Request throttling is deliberately excluded from measured model
+        # latency.
         if self._request_delay > 0:
             time.sleep(self._request_delay)
 
@@ -173,7 +157,7 @@ class OpenAIModel(LanguageModel):
 
         elapsed_total = 0.0
         last_response = None
-        output = None
+        self.last_usage = 0  # accumulate tokens across attempts this turn
 
         for attempt in range(attempts):
             messages = list(base_messages)
@@ -198,8 +182,8 @@ class OpenAIModel(LanguageModel):
                     }
                 )
 
-            # Reasoning tokens count toward the completion budget. Each retry
-            # receives progressively more room, up to the configured safety cap.
+            # Reasoning tokens count toward the completion budget. A retry gets
+            # progressively more room, up to the configured safety cap.
             token_budget = min(
                 self._max_tokens * (2 ** attempt),
                 MAX_ACTION_TOKEN_BUDGET,
@@ -216,16 +200,17 @@ class OpenAIModel(LanguageModel):
             last_response = response
 
             if not self._force_action:
-                output = self._response_text(response)
-                break
+                text = self._response_text(response)
+                self._memory.record(user_prompt, text)
+                return text, elapsed_total
 
             action = self._extract_action(response)
 
             if action is not None:
                 # The experiment receives only the canonical action, not the
-                # model's reasoning or any additional output.
-                output = action
-                break
+                # reasoning or other model output.
+                self._memory.record(user_prompt, action)
+                return action, elapsed_total
 
             LOG.warning(
                 "[%s] response contained no legal action "
@@ -236,18 +221,11 @@ class OpenAIModel(LanguageModel):
                 self._finish_reason(response),
             )
 
-        # If every attempt failed, preserve the raw output. ActionParser will
-        # mark the parse as failed and use the configured fallback.
-        if output is None:
-            output = self._response_text(last_response)
-
-        # Remember the current state and selected action for the next turn.
-        self._memory.record(
-            user_prompt,
-            output,
-        )
-
-        return output, elapsed_total
+        # If every attempt fails, preserve the raw output. ActionParser will
+        # mark the parse as failed and apply the configured fallback.
+        text = self._response_text(last_response)
+        self._memory.record(user_prompt, text)
+        return text, elapsed_total
 
     def _request_params(
         self,
@@ -266,15 +244,10 @@ class OpenAIModel(LanguageModel):
         if self._reasoning_effort:
             params["reasoning_effort"] = self._reasoning_effort
 
-        # Try structured action selection unless the model/provider has already
+        # Try structured action selection unless this model/provider has already
         # rejected tool calling.
-        if (
-            self._force_action
-            and self._tools_supported is not False
-        ):
-            params["tools"] = [
-                self._action_tool()
-            ]
+        if self._force_action and self._tools_supported is not False:
+            params["tools"] = [self._action_tool()]
 
             params["tool_choice"] = {
                 "type": "function",
@@ -302,9 +275,7 @@ class OpenAIModel(LanguageModel):
                             "enum": list(ACTIONS),
                         }
                     },
-                    "required": [
-                        "action"
-                    ],
+                    "required": ["action"],
                     "additionalProperties": False,
                 },
             },
@@ -313,22 +284,14 @@ class OpenAIModel(LanguageModel):
     # -------------------------------------------------------------------------
     # API request
     # -------------------------------------------------------------------------
-    def _create_response(
-        self,
-        params: dict,
-    ):
-        """
-        Return the full API response and measured request time.
+    def _create_response(self, params: dict):
+        """Return the full API response and measured request time.
 
         Unsupported optional parameters are removed and retried.
 
         If a hosted model rejects tool calling, the same request is retried as
         an ordinary text completion. Future turns for that model then skip tools.
-
-        Reasoning effort is never silently removed because that would change the
-        experimental condition.
         """
-
         import openai
 
         rate_limit_attempts = 0
@@ -343,14 +306,23 @@ class OpenAIModel(LanguageModel):
 
                 elapsed = time.perf_counter() - start
 
+                # Accumulate real token usage (prompt + completion, and for
+                # reasoning models the hidden reasoning tokens are included in
+                # completion_tokens). Guarded so a provider that omits usage
+                # never breaks the run.
+                usage = getattr(response, "usage", None)
+                total = getattr(usage, "total_tokens", None) if usage else None
+                if total is not None:
+                    self.last_usage = (self.last_usage or 0) + int(total)
+
                 if "tools" in params:
                     self._tools_supported = True
 
                 return response, elapsed
 
             except openai.BadRequestError as exc:
-                # Some endpoints return HTTP 400 rather than HTTP 405 when
-                # tools are unsupported or incompatible with reasoning effort.
+                # Some endpoints return a 400 rather than a 405 when tools are
+                # unsupported.
                 if (
                     "tools" in params
                     and self._is_tools_unsupported(exc)
@@ -363,60 +335,31 @@ class OpenAIModel(LanguageModel):
                 if (
                     bad_parameter
                     and bad_parameter in params
-                    and bad_parameter not in (
-                        "model",
-                        "messages",
-                    )
+                    and bad_parameter not in ("model", "messages")
                 ):
-                    # tools and tool_choice depend on each other.
-                    if bad_parameter in (
-                        "tools",
-                        "tool_choice",
-                    ):
-                        self._disable_tools_and_retry(params)
-                        continue
-
-                    if bad_parameter == "temperature":
-                        LOG.warning(
-                            "[%s] endpoint rejected temperature; "
-                            "retrying without it.",
-                            self.name,
-                        )
-
-                        # Remember this so future turns do not resend it.
-                        self._temperature_supported = False
-                        params.pop("temperature", None)
-                        continue
-
-                    if bad_parameter == "reasoning_effort":
-                        # Never silently remove reasoning effort. Doing that
-                        # would invalidate comparisons between reasoning levels.
-                        LOG.error(
-                            "[%s] endpoint rejected reasoning_effort=%r. "
-                            "The request will not be retried without reasoning.",
-                            self.name,
-                            self._reasoning_effort,
-                        )
-                        raise
-
                     LOG.warning(
                         "[%s] endpoint rejected '%s'; retrying without it.",
                         self.name,
                         bad_parameter,
                     )
 
-                    params.pop(
-                        bad_parameter,
-                        None,
-                    )
+                    # tools and tool_choice depend on each other.
+                    if bad_parameter in ("tools", "tool_choice"):
+                        self._disable_tools_and_retry(params)
+                    elif bad_parameter == "temperature":
+                        # Remember it so future turns don't re-send it.
+                        self._temperature_supported = False
+                        params.pop("temperature", None)
+                    else:
+                        params.pop(bad_parameter, None)
 
                     continue
 
                 raise
 
             except openai.APIStatusError as exc:
-                # Hugging Face may return HTTP 405 for models that do not
-                # support tool calling.
+                # Hugging Face may return HTTP 405 for models such as Phi-4 that
+                # do not support tool calling.
                 if (
                     "tools" in params
                     and self._is_tools_unsupported(exc)
@@ -452,69 +395,26 @@ class OpenAIModel(LanguageModel):
 
                 time.sleep(wait)
 
-    def _disable_tools_and_retry(
-        self,
-        params: dict,
-    ) -> None:
-        """
-        Remove function tools while keeping reasoning_effort unchanged.
-
-        The model then returns a normal text response. The response is still
-        checked by _extract_action(), so force_action continues to validate that
-        a legal Crafter action was returned.
-        """
-
+    def _disable_tools_and_retry(self, params: dict) -> None:
         self._tools_supported = False
 
-        params.pop(
-            "tools",
-            None,
-        )
+        params.pop("tools", None)
+        params.pop("tool_choice", None)
 
-        params.pop(
-            "tool_choice",
-            None,
+        LOG.warning(
+            "[%s] tool calling is unsupported; "
+            "retrying with plain text output.",
+            self.name,
         )
-
-        if self._reasoning_effort:
-            LOG.warning(
-                "[%s] tools are incompatible with reasoning_effort=%s on this "
-                "Chat Completions endpoint; retrying without tools and keeping "
-                "reasoning enabled.",
-                self.name,
-                self._reasoning_effort,
-            )
-        else:
-            LOG.warning(
-                "[%s] tool calling is unsupported; "
-                "retrying with plain text output.",
-                self.name,
-            )
 
     @staticmethod
-    def _is_tools_unsupported(
-        exc,
-    ) -> bool:
-        """
-        Detect endpoints that reject tools completely or reject the combination
-        of function tools and reasoning_effort.
-        """
+    def _is_tools_unsupported(exc) -> bool:
+        text_parts = [str(exc)]
 
-        text_parts = [
-            str(exc)
-        ]
-
-        body = getattr(
-            exc,
-            "body",
-            None,
-        )
+        body = getattr(exc, "body", None)
 
         if isinstance(body, dict):
-            error = body.get(
-                "error",
-                body,
-            )
+            error = body.get("error", body)
 
             if isinstance(error, dict):
                 for key in (
@@ -524,24 +424,14 @@ class OpenAIModel(LanguageModel):
                     "code",
                 ):
                     text_parts.append(
-                        str(
-                            error.get(
-                                key,
-                                "",
-                            )
-                        )
+                        str(error.get(key, ""))
                     )
             else:
-                text_parts.append(
-                    str(error)
-                )
+                text_parts.append(str(error))
 
-        text = " ".join(
-            text_parts
-        ).lower()
+        text = " ".join(text_parts).lower()
 
         unsupported_phrases = (
-            # General tool-support errors.
             "tool calling is not supported",
             "tool calling not supported",
             "tools are not supported",
@@ -549,15 +439,6 @@ class OpenAIModel(LanguageModel):
             "does not support tool",
             "doesn't support tool",
             "unsupported tool",
-
-            # Chat Completions reasoning/tool incompatibility.
-            "function tools with reasoning_effort are not supported",
-            "function tools with reasoning effort are not supported",
-            "tools with reasoning_effort are not supported",
-            "tools with reasoning effort are not supported",
-            "to use function tools, use /v1/responses",
-            "set reasoning_effort to 'none'",
-            'set reasoning_effort to "none"',
         )
 
         return any(
@@ -568,17 +449,10 @@ class OpenAIModel(LanguageModel):
     # -------------------------------------------------------------------------
     # Response extraction
     # -------------------------------------------------------------------------
-    def _extract_action(
-        self,
-        response,
-    ) -> str | None:
+    def _extract_action(self, response) -> str | None:
         if (
             response is None
-            or not getattr(
-                response,
-                "choices",
-                None,
-            )
+            or not getattr(response, "choices", None)
         ):
             return None
 
@@ -586,12 +460,7 @@ class OpenAIModel(LanguageModel):
 
         # Preferred path: structured choose_action call.
         for tool_call in (
-            getattr(
-                message,
-                "tool_calls",
-                None,
-            )
-            or []
+            getattr(message, "tool_calls", None) or []
         ):
             function = getattr(
                 tool_call,
@@ -600,21 +469,13 @@ class OpenAIModel(LanguageModel):
             )
 
             if (
-                getattr(
-                    function,
-                    "name",
-                    None,
-                )
+                getattr(function, "name", None)
                 != "choose_action"
             ):
                 continue
 
             action = self._action_from_arguments(
-                getattr(
-                    function,
-                    "arguments",
-                    "",
-                )
+                getattr(function, "arguments", "")
             )
 
             if action is not None:
@@ -622,39 +483,27 @@ class OpenAIModel(LanguageModel):
 
         # Compatibility path: normal visible response text.
         action = self._find_action(
-            getattr(
-                message,
-                "content",
-                None,
-            )
-            or ""
+            getattr(message, "content", None) or ""
         )
 
         if action is not None:
             return action
 
-        # Some OpenAI-compatible endpoints put generated text into a
-        # nonstandard reasoning_content field.
+        # Some OpenAI-compatible endpoints put generated text into a nonstandard
+        # reasoning_content field.
         return self._find_action(
             self._reasoning_text(message)
         )
 
     @staticmethod
-    def _action_from_arguments(
-        arguments,
-    ) -> str | None:
-        if isinstance(
-            arguments,
-            dict,
-        ):
+    def _action_from_arguments(arguments) -> str | None:
+        if isinstance(arguments, dict):
             return OpenAIModel._canonical_action(
                 arguments.get("action")
             )
 
         try:
-            parsed = json.loads(
-                arguments or "{}"
-            )
+            parsed = json.loads(arguments or "{}")
         except (
             TypeError,
             json.JSONDecodeError,
@@ -663,10 +512,7 @@ class OpenAIModel(LanguageModel):
                 str(arguments or "")
             )
 
-        if isinstance(
-            parsed,
-            dict,
-        ):
+        if isinstance(parsed, dict):
             return OpenAIModel._canonical_action(
                 parsed.get("action")
             )
@@ -674,13 +520,8 @@ class OpenAIModel(LanguageModel):
         return None
 
     @staticmethod
-    def _canonical_action(
-        value,
-    ) -> str | None:
-        if not isinstance(
-            value,
-            str,
-        ):
+    def _canonical_action(value) -> str | None:
+        if not isinstance(value, str):
             return None
 
         lowered = value.strip().lower()
@@ -691,54 +532,31 @@ class OpenAIModel(LanguageModel):
         return None
 
     @staticmethod
-    def _find_action(
-        text: str,
-    ) -> str | None:
-        hits = _ACTION_RE.findall(
-            text or ""
-        )
+    def _find_action(text: str) -> str | None:
+        hits = _ACTION_RE.findall(text or "")
 
         if not hits:
             return None
 
         return hits[-1].lower()
 
-    def _response_text(
-        self,
-        response,
-    ) -> str:
+    def _response_text(self, response) -> str:
         if (
             response is None
-            or not getattr(
-                response,
-                "choices",
-                None,
-            )
+            or not getattr(response, "choices", None)
         ):
             return ""
 
         message = response.choices[0].message
+        content = getattr(message, "content", None)
 
-        content = getattr(
-            message,
-            "content",
-            None,
-        )
-
-        if (
-            isinstance(content, str)
-            and content.strip()
-        ):
+        if isinstance(content, str) and content.strip():
             return content.strip()
 
-        return self._reasoning_text(
-            message
-        ).strip()
+        return self._reasoning_text(message).strip()
 
     @staticmethod
-    def _reasoning_text(
-        message,
-    ) -> str:
+    def _reasoning_text(message) -> str:
         value = getattr(
             message,
             "reasoning_content",
@@ -754,10 +572,7 @@ class OpenAIModel(LanguageModel):
             None,
         )
 
-        if isinstance(
-            extra,
-            dict,
-        ):
+        if isinstance(extra, dict):
             value = (
                 extra.get("reasoning_content")
                 or extra.get("reasoning")
@@ -769,16 +584,10 @@ class OpenAIModel(LanguageModel):
         return ""
 
     @staticmethod
-    def _finish_reason(
-        response,
-    ) -> str | None:
+    def _finish_reason(response) -> str | None:
         if (
             response is None
-            or not getattr(
-                response,
-                "choices",
-                None,
-            )
+            or not getattr(response, "choices", None)
         ):
             return None
 
@@ -807,36 +616,17 @@ class OpenAIModel(LanguageModel):
         )
 
         return (
-            min(
-                backoff,
-                MAX_BACKOFF,
-            )
-            + random.uniform(
-                0,
-                0.5,
-            )
+            min(backoff, MAX_BACKOFF)
+            + random.uniform(0, 0.5)
         )
 
     @staticmethod
-    def _retry_after(
-        exc,
-    ) -> float | None:
-        response = getattr(
-            exc,
-            "response",
-            None,
-        )
-
-        headers = getattr(
-            response,
-            "headers",
-            None,
-        )
+    def _retry_after(exc) -> float | None:
+        response = getattr(exc, "response", None)
+        headers = getattr(response, "headers", None)
 
         if headers:
-            value = headers.get(
-                "retry-after"
-            )
+            value = headers.get("retry-after")
 
             if value:
                 try:
@@ -850,26 +640,13 @@ class OpenAIModel(LanguageModel):
         return None
 
     @staticmethod
-    def _rejected_param(
-        exc,
-    ) -> str | None:
-        body = getattr(
-            exc,
-            "body",
-            None,
-        )
+    def _rejected_param(exc) -> str | None:
+        body = getattr(exc, "body", None)
 
         if isinstance(body, dict):
-            error = body.get(
-                "error",
-                body,
-            )
+            error = body.get("error", body)
 
-            if isinstance(
-                error,
-                dict,
-            ):
+            if isinstance(error, dict):
                 return error.get("param")
 
         return None
-    
