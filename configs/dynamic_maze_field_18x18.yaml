@@ -1,5 +1,5 @@
 experiment:
-  name: maze_field_18x18
+  name: dynamic_maze_field_18x18
   output_dir: runs
   num_trials: 4
   max_turns: 70
@@ -116,6 +116,12 @@ world:
         - [12, 16]
         - [6, 17]
         - [12, 17]
+  entities:
+    zombie:
+      positions:
+        - [5, 5]
+        - [11, 8]
+        - [8, 13]
 
 prompt:
   include_legend: true
